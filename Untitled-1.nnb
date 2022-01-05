@@ -1,0 +1,31 @@
+{
+    "cells": [
+        {
+            "language": "typescript",
+            "source": [
+                "import fetch from 'node-fetch'\n\nasync function main() {\n    let r = await fetch(\"www.google.com\")\n    console.log(r);\n}\n\nmain();"
+            ],
+            "outputs": [
+                {
+                    "items": [
+                        {
+                            "mime": "application/vnd.code.notebook.error",
+                            "value": {
+                                "name": "TypeError",
+                                "message": "The \"path\" argument must be of type string. Received null",
+                                "stack": "node:internal/validators:119\n    throw new ERR_INVALID_ARG_TYPE(name, 'string', value);\n    ^\n\nTypeError [ERR_INVALID_ARG_TYPE]: The \"path\" argument must be of type string. Received null\n    at new NodeError (node:internal/errors:371:5)\n    at validateString (node:internal/validators:119:11)\n    at Object.basename (node:path:1309:5)\n    at Error.<anonymous> (node:internal/errors:1459:55)\n    at getMessage (node:internal/errors:421:12)\n    at new NodeError (node:internal/errors:348:21)\n    at Object.Module._extensions..js (node:internal/modules/cjs/loader:1128:19)\n    at Module.load (node:internal/modules/cjs/loader:981:32)\n    at Function.Module._load (node:internal/modules/cjs/loader:822:12)\n    at Function._._load (/Users/ankushgirotra/.vscode/extensions/donjayamanne.typescript-notebook-2.0.6/out/extension/server/index.js:2:115372)"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "language": "typescript",
+            "source": [
+                ""
+            ],
+            "outputs": []
+        }
+    ]
+}
