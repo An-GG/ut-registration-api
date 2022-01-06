@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import repl from 'repl';
 import * as nhp from 'node-html-parser'
 import cheerio from 'cheerio'
+import keys from './keys.json'
 
 let g = {} as any;
 
@@ -88,10 +89,27 @@ login_content = res.body.read().toString();
 login_dom = cheerio.load(login_content);
 login_form = login_dom('form.loginForm');
 
+// set value from button
+login_form.find('#login-button > input')[0].attribs.type = 'hidden';
+console.log('d');
+console.log(login_form.find('#login-button > input')[0].attribs);
+console.log('c');
 // set credentials
-login_form.find('#username')[0].attribs.value = 'ABC';
-login_form.find('#password')[0].attribs.value = 'pass';
+login_form.find('#username')[0].attribs.value = keys.username;
+login_form.find('#password')[0].attribs.value = keys.password;
 
+login_redirect = (new URL(login_redirect)).origin + login_form.attr('action');
+
+/*res = await fetch(login_redirect, {
+    redirect: 'manual',
+    body: login_form.serialize(),
+    method: login_form.attr('method'),
+    headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        cookie: makeCookieString(login_set_cookies)
+    }
+});
+*/
 
 
 g.login = {
@@ -138,6 +156,10 @@ g = {
     cheerio
 };
 
+if(
+false
+){
 let r = repl.start({ useGlobal:true });
 Object.assign(r.context, g);
+}
 
