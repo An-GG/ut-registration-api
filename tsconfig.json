@@ -7,7 +7,7 @@
       "sourceMap": true,
       "outDir": "dist",
       "baseUrl": ".",
-      "lib": ["ES2020"],
+      "lib": ["esnext"],
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
   },
