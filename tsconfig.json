@@ -10,7 +10,7 @@
       "lib": ["esnext"],
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
-      "resolveJsonModule": true
+      "resolveJsonModule": false
   },
   "include": [
       "src/**/*"

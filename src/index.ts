@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import repl from 'repl';
 import * as nhp from 'node-html-parser'
 import cheerio from 'cheerio'
-import keys from './keys.json'
+import keys from 'credential/keys.json'
 
 let g = {} as any;
 
