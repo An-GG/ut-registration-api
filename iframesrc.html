@@ -1,0 +1,321 @@
+<!--<![endif]--><head>
+<meta charset="utf-8">
+
+<title>
+    Two-Factor Authentication
+</title>
+<!-- Import for all versions of IE, in case the standards mode is downgraded to IE8 -->
+<!--[if IE]> <link rel="stylesheet" href="&#x2f;frame&#x2f;static&#x2f;css&#x2f;v3&#x2f;ie8.css&#x3f;v&#x3d;3582c"> <![endif]-->
+
+<link rel="stylesheet" href="/frame/static/css/normalize.css?v=a674e">
+<link rel="stylesheet" href="/frame/static/fonts/ss-standard/ss-standard.css?v=a8885">
+<link rel="stylesheet" href="/frame/static/css/fonts/duo-admin.css?v=fc5d6">
+<link rel="stylesheet" href="/frame/static/css/v3/base.css?v=0b303">
+
+<link rel="stylesheet" href="/frame/static/css/tipsy.css?v=4217a">
+
+
+</head>
+<body>
+    <div class="">
+        <div class="base-wrapper ">
+
+            <div class="base-main">
+                <div role="main" class="base-body">
+
+                    <form action="/frame/prompt" method="post" id="login-form" class="inline login-form">
+                        <input type="hidden" name="sid" value="MWU3MTIzMjA2NTkyNGY3ZWIzZDAzYzM3YjFiOWM0NmY=|71.150.108.217|1641478406|376735ec0e69bc5f192ecb1ba2513cf78398d035">
+                        <input type="hidden" name="url" value="/frame/prompt">
+                        <input type="hidden" name="enrollment_message" value="">
+                        <input type="hidden" name="itype" value="shibboleth">
+
+                        <input type="hidden" name="_xsrf" value="cf211dc5ba1a49a290c0cb61467ca877">
+
+                        <input type="hidden" name="ukey" value="DUNZPHOHXRVBNEY7EN9P">
+
+                        <input type="hidden" name="out_of_date" value="False">
+                        <input type="hidden" name="days_out_of_date" value="0">
+                        <input type="hidden" name="should_update_dm" value="False">
+
+
+                        <input type="hidden" name="preferred_factor" value="">
+                        <input type="hidden" name="preferred_device" value="phone1">
+
+                        <input type="hidden" name="days_to_block" value="None">
+                        <input type="hidden" name="should_retry_u2f_timeouts" value="True">
+
+                        <input type="hidden" id="has_phone_that_requires_compliance_text" name="has_phone_that_requires_compliance_text" value="False">
+
+                        <fieldset class="device-selector ">
+                            <h1 class="cramped-frame-view">
+                                Device:
+                            </h1>
+                            <div class="device-select-wrapper">
+                                <select name="device" aria-label="Device" tabindex="2">
+
+
+
+
+
+                                    <option value="phone1">iOS</option>
+
+
+                                    <option value="phone2">Mobile (XXX-XXX-6822)</option>
+
+
+
+
+
+
+
+
+
+
+
+                                    <option name="webauthn" value="WA2US0K774656D58Z79Z">Touch ID</option>
+
+
+
+
+
+                                </select>
+
+                            </div>
+                        </fieldset>
+
+                        <div id="auth_methods">
+
+                            <fieldset data-device-index="phone1" class="">
+                                <h2 class="medium-or-larger auth-method-header">
+                                    Choose an authentication method
+                                </h2>
+
+
+                                <div class="row-label push-label">
+                                    <input type="hidden" name="factor" value="Duo Push">
+                                    <span class="label factor-label">
+                                        <i class="icon-smartphone-check"></i>
+                                        Duo Push
+
+
+                                        <small class="recommended">
+                                            Recommended
+                                        </small>
+
+
+                                    </span>
+                                    <button tabindex="2" type="submit" class="auth-button positive"><!-- -->Send Me a Push </button>
+                                </div>
+
+
+
+
+                                <div class="passcode-label row-label">
+                                    <input type="hidden" name="factor" value="Passcode">
+                                    <span class="label factor-label">
+                                        <i class="icon-smartphone-ellipsis" alt="" role="presentation"></i>
+                                        Passcode
+                                    </span>
+                                    <div class="passcode-input-wrapper">
+                                        <input type="text" name="passcode" autocomplete="off" data-index="phone1" class="hidden passcode-input" placeholder="ex. 867539" aria-label="passcode" tabindex="2">
+                                        <div class="next-passcode-msg" role="alert" aria-live="polite"></div>
+                                    </div>
+                                    <button tabindex="2" type="submit" id="passcode" class="auth-button positive"><!-- -->Enter a Passcode </button>
+                                    <input name="phone-smsable" type="hidden" value="False">
+                                    <input name="mobile-otpable" type="hidden" value="True">
+                                    <input name="next-passcode" type="hidden" value="None">
+                                </div>
+
+                            </fieldset>
+
+                            <fieldset data-device-index="phone2" class="hidden">
+                                <h2 class="medium-or-larger auth-method-header">
+                                    Choose an authentication method
+                                </h2>
+
+
+
+
+
+                                <div class="row-label phone-label">
+                                    <input type="hidden" name="factor" value="Phone Call">
+                                    <span class="label factor-label">
+                                        <i class="icon-call-ringing" alt="" role="presentation"></i>
+                                        Call Me
+
+                                    </span>
+                                    <button tabindex="2" type="submit" class="auth-button positive"><!-- -->Call Me </button>
+                                </div>
+
+                                <div class="passcode-label row-label">
+                                    <input type="hidden" name="factor" value="Passcode">
+                                    <span class="label factor-label">
+                                        <i class="icon-smartphone-ellipsis" alt="" role="presentation"></i>
+                                        Passcode
+                                    </span>
+                                    <div class="passcode-input-wrapper">
+                                        <input type="text" name="passcode" autocomplete="off" data-index="phone2" class="hidden passcode-input" placeholder="ex. 867539" aria-label="passcode" tabindex="2">
+                                        <div class="next-passcode-msg" role="alert" aria-live="polite"></div>
+                                    </div>
+                                    <button tabindex="2" type="submit" id="passcode" class="auth-button positive"><!-- -->Enter a Passcode </button>
+                                    <input name="phone-smsable" type="hidden" value="True">
+                                    <input name="mobile-otpable" type="hidden" value="False">
+                                    <input name="next-passcode" type="hidden" value="1">
+                                </div>
+
+                            </fieldset>
+
+
+
+                            <fieldset name="security_key_fieldset" class="hidden" data-device-index="WA2US0K774656D58Z79Z">
+                                <h2 class="medium-or-larger">
+                                    Two-Factor Authentication
+                                </h2>
+                                <input type="hidden" name="auth_device_label" value="Touch ID">
+
+
+                                <div class="row-label webauthn-label">
+                                    <input type="hidden" name="factor" value="WebAuthn Credential">
+                                    <span class="label factor-label">
+                                        <i class="icon-touchid" alt="" role="presentation"></i>
+                                        Touch ID
+
+                                    </span>
+                                    <button tabindex="2" type="submit" class="auth-button c--btn-new-window positive"><!-- -->Use Touch ID </button>
+                                </div>
+
+
+
+                            </fieldset>
+
+
+
+                            <input type="hidden" name="has-token" value="false">
+
+
+                        </div>
+
+                        <div>
+
+                            <div class="stay-logged-in">
+                                <label class="remember_me_label_field">
+                                    <input type="checkbox" name="dampen_choice" value="1" tabindex="2">
+                                    <span id="remember_me_label_text">
+                                        Remember me for 30 days
+                                    </span>
+                                </label>
+                                <input type="hidden" name="cookies_allowed" value="">
+                            </div>
+
+                        </div>
+                    </form>
+
+
+                </div>
+            </div>
+            <div class="base-navigation">
+
+                <div class="base-navigation">
+                    <div role="banner">
+
+                        <a href="/frame/prompt?sid=MWU3MTIzMjA2NTkyNGY3ZWIzZDAzYzM3YjFiOWM0NmY=|71.150.108.217|1641478406|376735ec0e69bc5f192ecb1ba2513cf78398d035">
+                            <img src="/frame/static/img/duo-logo-green.png?v=5365b" alt="Duo Security Logo" width="128">
+                        </a>
+
+                    </div>
+                    <div class="help-sidebar">
+                        <button class="btn btn-support">
+                            <i class="icon-align-justify" aria-label="Open"></i>
+                            <i class="icon-delete" aria-label="Close"></i>
+                            Settings
+                        </button>
+                        <div class="help-links">
+                            <nav role="navigation">
+
+                                <a id="help_link" class="help-nav" href="https://guide.duo.com/prompt" target="_blank" aria-label="What is the Duo Prompt? (Opens in a new tab.)">
+                                    What is this?<i class="icon-new-window"></i>
+                                </a>
+
+
+                                <a href="#" class="need-help">Need help?</a>
+                            </nav>
+
+                            <div role="contentinfo">
+                                <a href="https://duo.com" class="branding-link" target="_blank">
+                                    Secured by Duo
+                                </a>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                    <div class="help-overlay offscreen">
+                        <div class="help-links">
+                            <nav role="navigation">
+
+                                <a id="help_link" class="help-nav" href="https://guide.duo.com/prompt" target="_blank" aria-label="What is the Duo Prompt? (Opens in a new tab.)">
+                                    What is this?<i class="icon-new-window"></i>
+                                </a>
+
+
+                                <a href="#" class="need-help">Need help?</a>
+                            </nav>
+
+                            <div role="contentinfo">
+                                <a href="https://duo.com" class="branding-link" target="_blank">
+                                    Secured by Duo
+                                </a>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="base-sidebar">
+
+            </div>
+            <div id="messages-view" class="hidden">
+                <div class="messages-list">
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <script id="translations" type="text/json">
+        {"locale_data": {"js-messages": {"": {"domain": "js-messages", "lang": "en", "plural_forms": "nplurals&#x3d;2&#x3b; plural&#x3d;&#x28;n &#x21;&#x3d; 1&#x29;&#x3b;"}}}, "domain": "js-messages"}
+    </script>
+
+
+    <!-- Hidden XSRF input needed for POST requests made by errors.js -->
+    <input type="hidden" name="_xsrf" value="cf211dc5ba1a49a290c0cb61467ca877">
+
+    <script src="/frame/static/shared/lib/jquery/jquery-prologue.js?v=400dc"></script>
+    <script src="/frame/static/shared/lib/jquery/jquery-legacy.min.js?v=72e7b"></script>
+    <script src="/frame/static/shared/lib/he/he.min.js?v=aaa33"></script>
+    <script src="/frame/static/js/lib/jquery-postmessage.min.js?v=98c73"></script>
+    <script src="/frame/static/shared/lib/lodash/lodash.min.js?v=14516"></script>
+    <script src="/frame/static/shared/lib/backbone/backbone-min.js?v=e0ff6"></script>
+    <script src="/frame/static/js/page/v3/frame.js?v=83127"></script>
+    <script src="/frame/static/js/page/v3/base.js?v=dbf34"></script>
+    <script src="/frame/static/shared/lib/validator/validator.min.js?v=9a068"></script>
+    <script src="/frame/static/shared/lib/jquery/jquery-epilogue.js?v=c4ac5"></script>
+    <script id="browser_exceptions" src="/frame/static/shared/js/errors.js?v=d10d2" data-url="/frame/browser_exceptions"></script>
+    <input type="hidden" name="helpdesk-message" id="helpdesk-message" value="Please contact the UT Service Desk at 512-475-9400.">
+    <!--[if lt IE 10]>
+        <script src="&#x2f;frame&#x2f;static&#x2f;js&#x2f;page&#x2f;v3&#x2f;quirks.js&#x3f;v&#x3d;a92a7"></script>
+    <![endif]-->
+
+
+    <script src="/frame/static/js/lib/jquery.tipsy.js?v=c0432"></script>
+    <script src="/frame/static/js/page/v3/prompt.js?v=f8189"></script>
+
+
+
+
+</body>

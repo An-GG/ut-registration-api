@@ -1,9 +1,14 @@
-import { writeFileSync } from 'fs';
+const REPL_ON = true;
+
+
+import { readFileSync, writeFileSync } from 'fs';
 import fetch from 'node-fetch';
 import repl from 'repl';
 import * as nhp from 'node-html-parser'
 import cheerio from 'cheerio'
-import keys from 'credential/keys.json'
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { duonative_set_iframe_src } from './duo.js';
 
 let g = {} as any;
 
@@ -89,18 +94,19 @@ login_content = res.body.read().toString();
 login_dom = cheerio.load(login_content);
 login_form = login_dom('form.loginForm');
 
-// set value from button
-login_form.find('#login-button > input')[0].attribs.type = 'hidden';
-console.log('d');
-console.log(login_form.find('#login-button > input')[0].attribs);
-console.log('c');
 // set credentials
-login_form.find('#username')[0].attribs.value = keys.username;
-login_form.find('#password')[0].attribs.value = keys.password;
+let __filename = fileURLToPath(import.meta.url);
+let __dirname = dirname(__filename);
+const credential = readFileSync(resolve(__dirname, '../credential')).toString().split('\n');
+
+login_form.find('#username')[0].attribs.value = credential[0];
+login_form.find('#password')[0].attribs.value = credential[1];
+login_form.find('#login-button > input')[0].attribs.type = 'hidden';
+
 
 login_redirect = (new URL(login_redirect)).origin + login_form.attr('action');
 
-/*res = await fetch(login_redirect, {
+res = await fetch(login_redirect, {
     redirect: 'manual',
     body: login_form.serialize(),
     method: login_form.attr('method'),
@@ -109,7 +115,47 @@ login_redirect = (new URL(login_redirect)).origin + login_form.attr('action');
         cookie: makeCookieString(login_set_cookies)
     }
 });
+
+
+login_redirect = res.headers.get('location');
+res = await fetch(login_redirect, {
+    redirect: "manual",
+    headers: {
+        cookie: makeCookieString(login_set_cookies)
+    }
+});
+
+
+login_content = res.body.read().toString();
+login_dom = cheerio.load(login_content);
+let duo_iframe = login_dom("#duo_iframe")[0];
+duonative_set_iframe_src(duo_iframe, (new URL(login_redirect)).origin);
+
+console.log(duo_iframe.attribs.src);
+
+async function runtest() {
+    let res2 = await fetch(duo_iframe.attribs.src, {
+        method: "GET",
+        headers: {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+        },
+        redirect: "manual",
+    });
+    g.res2 = res2;
+
+    setTimeout(()=>{
+
+        console.log(res2.body.read().toString());
+    }, 1000);
+}
+await runtest();
+/*
+login_content = res.body.read().toString();
+login_dom = cheerio.load(login_content);
+let duo_login_form = login_dom('#login-form')[0];
 */
+
+
 
 
 g.login = {
@@ -118,7 +164,9 @@ g.login = {
     login_content,
     login_redirect,
     login_submit_btn,
-    login_set_cookies
+    login_set_cookies,
+    duo_iframe,
+//    duo_login_form
 }
 
 //res = await fetch("https://enterprise.login.utexas.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s1", {
@@ -151,15 +199,14 @@ let standard_headers = {
 
 g = {
     ...g,
+    ...g.login,
     res,
     parseCookieString,
     cheerio
 };
 
-if(
-false
-){
-let r = repl.start({ useGlobal:true });
-Object.assign(r.context, g);
+if(REPL_ON) {
+    let r = repl.start({ useGlobal:true });
+    Object.assign(r.context, g);
 }
 
