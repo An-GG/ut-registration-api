@@ -22,6 +22,8 @@ export namespace Request {
         | 's_unique_drop' 
         | 's_swap_unique_drop' 
         | 's_swap_unique_add' 
+        | 's_waitlist_unique'
+        | 's_waitlist_swap_unique'
         | 's_submit'
         | 's_sbec'
         | 's_af_unique'
@@ -103,6 +105,63 @@ export class RegistrationSession {
             'ack_degr_plan': 'on' 
         });
     }
+
+    /**
+     * Add course.
+     *
+     * TODO: alot of these also have 'Submit' param which is just the submit button text, but idt that's needed
+     */
+    public addCourse(unique_course_id: number) {
+        return this._req('STADD', 'GET', 'url', 'registration/registration.WBX', {
+            's_unique_add':unique_course_id.toString(), 
+            's_unique_drop':'+',     
+            's_swap_unique_drop':'+',
+            's_swap_unique_add':''
+        });
+    }
+
+    /**
+     * Drop course.
+     */
+    public dropCourse(unique_course_id: number) {
+        return this._req('STDRP', 'GET', 'url', 'registration/registration.WBX', {
+            's_unique_add':'', 
+            's_unique_drop':unique_course_id.toString(),     
+            's_swap_unique_drop':'+',
+            's_swap_unique_add':''
+        });
+    }
+
+    /**
+     * Swap courses, aka 'DROP DEPENDENT UPON successfully ADDING'.
+     */
+    public swapCourses(drop_unique_id: number, add_unique_id: number) {
+        return this._req('STSWP', 'GET', 'url', 'registration/registration.WBX', {
+            's_unique_add':'',
+            's_unique_drop':'+', 
+            's_swap_unique_drop':drop_unique_id.toString(),
+            's_swap_unique_add':add_unique_id.toString()  
+        });
+    }
+
+    /**
+     * Join course waitlist.
+     */
+    public joinWaitlist(unique_course_id: number, optional_swap_course_id?: number) {
+        return this._req('STAWL', 'GET', 'url', 'registration/registration.WBX', {
+            's_waitlist_unique':unique_course_id.toString(), 
+            's_waitlist_swap_unique': optional_swap_course_id ? optional_swap_course_id.toString() : '+',
+            's_unique_add':'',
+            's_unique_drop':'+',         
+            's_swap_unique_drop':'+',    
+            's_swap_unique_add':''  
+        });
+    }
+
+    /**
+     * TODO STCPF
+     * TODO STGAC
+     */
 
 
 
@@ -194,7 +253,7 @@ export class RegistrationSession {
         let r = await this._fetch(url, opts);
         
         if (r.dom('span.error').length > 0) {
-            throw new Error(r.dom('span.error').text());
+            throw new Error(r.dom('span.error').parent().text());
         }
         return r;
     }
@@ -230,7 +289,7 @@ export class RegistrationSession {
  *  
  *  To build
  *  - elegant way to import your session cookies
- *  - remaining request methods
+ *  * remaining request methods
  *  - launch at precise time
  *      - scrape reg time?
  **/
