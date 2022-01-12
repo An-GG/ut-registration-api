@@ -1,63 +1,9 @@
 import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 import cheerio, { CheerioAPI } from 'cheerio';
+import puppeteer from 'puppeteer-core';
 
 
-
-export namespace Request {
-    
-    export type Endpoint = 
-        'registration/registration.WBX' 
-        | 'registration/searchClasses.WBX' 
-        | 'registration/confirmEmailAddress.WBX'
-
-    export type ParamKeys = 
-        's_ccyys' 
-        | 's_student_eid' 
-        | 's_nonce' 
-        | 's_unique_search' 
-        | 's_unique' 
-        | 's_request' 
-        | 's_unique_add' 
-        | 's_unique_drop' 
-        | 's_swap_unique_drop' 
-        | 's_swap_unique_add' 
-        | 's_waitlist_unique'
-        | 's_waitlist_swap_unique'
-        | 's_submit'
-        | 's_sbec'
-        | 's_af_unique'
-        | 'ack_sw'
-        | 'ack_degr_plan'
-
-    export type ManagedParamKeys =
-        's_ccyys'
-        | 's_nonce'
-        | 's_request'
-        | 's_student_eid'
-
-    export type FilteredParamKeys = Exclude<ParamKeys, ManagedParamKeys>
-
-    export type Params = Partial< { [k in FilteredParamKeys]: string; } >;
-
-    export type ManagedParams = { [k in ManagedParamKeys]: string; }
-
-    export type Code =
-        'STGAC'
-        | 'STADD'
-        | 'STDRP'
-        | 'STSWP'
-        | 'STAWL'
-        | 'STCPF'
-        | 'STGOF'
-        | 'STGAR'
-        | 'STUOF'
-}
-
-export type RegistrationSessionOptions = Partial<{
-    max_nonce_count:number,
-    min_nonce_count:number
-}>
 
 export class RegistrationSession {
 
@@ -66,14 +12,14 @@ export class RegistrationSession {
     max_nonce_count = 20;
 
 
-    constructor(year: number, semester: 'Spring' | 'Summer' | 'Fall', init_cookies: Map<string, string>, opts?:RegistrationSessionOptions) {
+    constructor(year: number, semester: 'Spring' | 'Summer' | 'Fall', init_cookies?: Map<string, string>, opts?:RegistrationSessionOptions) {
         let sem_codes = {
             'Spring': 2,
             'Summer': 6,
             'Fall': 9
         }
         this.ccyys = year + '' + sem_codes[semester];
-        this.cookies = init_cookies;
+        this.cookies = init_cookies ? init_cookies : this.cookies;
         
         opts = opts ? opts : {};
         for (let k of Object.keys(opts)) {
@@ -159,11 +105,101 @@ export class RegistrationSession {
     }
 
     /**
-     * TODO STCPF
-     * TODO STGAC
+     * Toggle course grading basis, aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDIT basis'
      */
+    public toggleCourseGradingBasis(unique_course_id: number) {
+        return this._req('STCPF', 'GET', 'url', 'registration/registration.WBX', {
+            's_unique_add':'',
+            's_unique_drop':'+',         
+            's_swap_unique_drop':'+',    
+            's_swap_unique_add':'',
+            's_unique_pass_fail':unique_course_id.toString(),
+        });
+    }
 
 
+    /**
+     * Get all other sections that are open (not waitlisted) for a given course_id. Will never return the given course_id as a result, even if the given course is open.
+     * 'SEARCH for another section of the same course'
+     */
+    public async searchForAnotherSection(unique_course_id: number) {
+        let dom = (await this._req('STGAC', 'GET', 'url', 'registration/searchClasses.WBX', {
+            's_unique_add':'',
+            's_unique_drop':'+',         
+            's_swap_unique_drop':'+',    
+            's_swap_unique_add':'',
+            's_unique_search': unique_course_id.toString(),
+            's_unique': unique_course_id.toString()
+        })).dom;
+        
+        let table_keys: {[k:string]:string} = {};
+        let rows = this._ch(dom, 'table.searchTable tr');
+        let th_row = rows.shift();
+        
+        let row_elms = this._ch(th_row, 'th[id]')
+        for (let re of row_elms) {
+            let k = re.root().children().attr('id');
+            table_keys[k]=re.text();
+        }
+
+        let data_objs: {[unique_id:string]:any[]} = {};
+        let current_uid:string;
+        for (let r of rows) {
+            let tds = this._ch(r, 'td[headers]');
+            let kv_obj = {} as any;
+            for (let td of tds) {
+                let kn = td.root().children().attr('headers');
+                let k = table_keys[kn];
+                kv_obj[k] = td.root().contents().text();
+            }
+            if (Object.keys(kv_obj).includes('Unique')) {
+                current_uid = kv_obj['Unique'];
+            }
+            if (data_objs[current_uid] == undefined) {
+                data_objs[current_uid] = [];
+            }
+
+            data_objs[current_uid].push(kv_obj);
+        }
+
+        return data_objs;
+    }
+
+    private _ch(ch:CheerioAPI, sel:string) {
+        return ch(sel).toArray().map((n)=>{return cheerio.load(n)})
+    }
+    public async chromeGUIAuthentication() {
+        let chrome = await puppeteer.launch({
+            channel: 'chrome',
+            headless: false,
+            defaultViewport: null
+        });
+        let page = await chrome.newPage();
+        await page.goto(this.ut_direct_url);
+        await page.on('framenavigated', async (event)=>{
+            console.log(page.url());
+            console.log(await page.cookies());
+        });
+        return page;
+    }
+
+    public async collectNonce() {
+        let n_before = this.new_nonces.length + this.used_nonces_count;
+        let r = await this._fetch('https://utdirect.utexas.edu/registration/chooseSemester.WBX', {});
+        let n_after = this.new_nonces.length + this.used_nonces_count;
+        if (!(n_after > n_before)) {
+            throw new Error(`Nonce count did not increase. \n\tn_before: ${n_before}\n\tn_after: ${n_after}\n`);
+        };
+        return r;
+    }
+
+    public async collectMaxNonces() {
+        let waiters = [];
+        for (let i = 0; i < this.max_nonce_count - this.new_nonces.length; i++) {
+            waiters.push(this.collectNonce());
+        }
+        return await Promise.all(waiters);
+    }
 
     cookies:Map<string, string> = new Map();
     ccyys: string;
@@ -258,29 +294,65 @@ export class RegistrationSession {
         return r;
     }
 
-    public async collectNonce() {
-        let n_before = this.new_nonces.length + this.used_nonces_count;
-        let r = await this._fetch('https://utdirect.utexas.edu/registration/chooseSemester.WBX', {});
-        let n_after = this.new_nonces.length + this.used_nonces_count;
-        if (!(n_after > n_before)) {
-            throw new Error(`Nonce count did not increase. \n\tn_before: ${n_before}\n\tn_after: ${n_after}\n`);
-        };
-        return r;
-    }
-
-    public async collectMaxNonces() {
-        let waiters = [];
-        for (let i = 0; i < this.max_nonce_count - this.new_nonces.length; i++) {
-            waiters.push(this.collectNonce());
-        }
-        return await Promise.all(waiters);
-    }
-
 
 
 }
 
+export namespace Request {
+    
+    export type Endpoint = 
+        'registration/registration.WBX' 
+        | 'registration/searchClasses.WBX' 
+        | 'registration/confirmEmailAddress.WBX'
 
+    export type ParamKeys = 
+        's_ccyys' 
+        | 's_student_eid' 
+        | 's_nonce' 
+        | 's_unique_search' 
+        | 's_unique' 
+        | 's_request' 
+        | 's_unique_add' 
+        | 's_unique_drop' 
+        | 's_swap_unique_drop' 
+        | 's_swap_unique_add' 
+        | 's_unique_pass_fail'
+        | 's_waitlist_unique'
+        | 's_waitlist_swap_unique'
+        | 's_submit'
+        | 's_sbec'
+        | 's_af_unique'
+        | 'ack_sw'
+        | 'ack_degr_plan'
+
+    export type ManagedParamKeys =
+        's_ccyys'
+        | 's_nonce'
+        | 's_request'
+        | 's_student_eid'
+
+    export type FilteredParamKeys = Exclude<ParamKeys, ManagedParamKeys>
+
+    export type Params = Partial< { [k in FilteredParamKeys]: string; } >;
+
+    export type ManagedParams = { [k in ManagedParamKeys]: string; }
+
+    export type Code =
+        'STGAC'
+        | 'STADD'
+        | 'STDRP'
+        | 'STSWP'
+        | 'STAWL'
+        | 'STCPF'
+        | 'STGOF'
+        | 'STGAR'
+        | 'STUOF'
+}
+
+export type RegistrationSessionOptions = Partial<{
+    max_nonce_count:number,
+    min_nonce_count:number
+}>
 
 /**
  *  TODO 
