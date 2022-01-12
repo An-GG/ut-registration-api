@@ -64,7 +64,7 @@ export class RegistrationSession {
     max_nonce_count = 20;
 
 
-    constructor(year: number, semester: 'Spring' | 'Summer' | 'Fall', init_cookies: Map<string, string>, opts:RegistrationSessionOptions) {
+    constructor(year: number, semester: 'Spring' | 'Summer' | 'Fall', init_cookies: Map<string, string>, opts?:RegistrationSessionOptions) {
         let sem_codes = {
             'Spring': 2,
             'Summer': 6,
@@ -72,14 +72,36 @@ export class RegistrationSession {
         }
         this.ccyys = year + '' + sem_codes[semester];
         this.cookies = init_cookies;
+        
+        opts = opts ? opts : {};
         for (let k of Object.keys(opts)) {
             let kk = k as keyof typeof opts;
             this[kk] = opts[kk];
         }
     }
 
+    /**
+     * Equivalent to choosing the target semester among the available semesters at 'registration/chooseSemester.WBX'
+     *
+     * TODO: check if this is necessary to do before submitting other requests
+     * - prob required. if you don't select, it redirects you to chooseSemester (but i didn't see any local cookie/cache storing semester)
+     * - also not sure if you need to do this before submitting singleTimeAcknowledgement
+     */
     public beginRegistration() {
         return this._req('STGAR', 'POST', 'form', 'registration/registration.WBX', {});
+    }
+
+    /**
+     * Submits the form at 'registration/confirmEmailAddress.WBX' with the acknowledge box ticked.
+     * 'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
+     */
+    public singleTimeAcknowledgement() {
+        return this._req('STUOF', 'POST', 'form', 'registration/confirmEmailAddress.WBX', {
+            's_sbec': 'T',
+            's_af_unique': '',
+            'ack_sw': 'Y',
+            'ack_degr_plan': 'on' 
+        });
     }
 
 
@@ -117,7 +139,7 @@ export class RegistrationSession {
         return Array.from(this.cookies).map(c=>c[0]+'='+c[1]).join('; ');
     }
 
-    private async _fetch(url: Parameters<typeof fetch>[0], opts: Parameters<typeof fetch>[1]): Promise<{r:Response, body?:string, dom?: CheerioAPI}> {
+    async _fetch(url: Parameters<typeof fetch>[0], opts: Parameters<typeof fetch>[1]): Promise<{r:Response, body?:string, dom?: CheerioAPI}> {
         opts.headers = opts.headers ? opts.headers : {};
         (opts.headers as any)['cookie'] = this._make_cookie_string();
         let r = await fetch(url, opts);
