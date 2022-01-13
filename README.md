@@ -59,17 +59,19 @@ cookies.forEach(c=>cookies_from_authenticated_session.set(c.name, c.value));
 
 - [constructor](#constructor)
 
-#### Methods
+#### Registration Methods
 - [addCourse](#addcourse)
 - [beginRegistration](#beginregistration)
-- [collectMaxNonces](#collectmaxnonces)
-- [collectNonce](#collectnonce)
 - [dropCourse](#dropcourse)
 - [joinWaitlist](#joinwaitlist)
 - [searchForAnotherSection](#searchforanothersection)
 - [singleTimeAcknowledgement](#singletimeacknowledgement)
 - [swapCourses](#swapcourses)
 - [toggleCourseGradingBasis](#togglecoursegradingbasis)
+
+#### Methods
+- [collectMaxNonces](#collectmaxnonces)
+- [collectNonce](#collectnonce)
 
 ### constructor
 
