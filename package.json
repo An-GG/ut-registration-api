@@ -6,5 +6,24 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
     "node-fetch": "^3.1.0"
-  }
+  },
+  "name": "@an-gg/ut-registration-api",
+  "description": "- Uses get and post requests with query params, works using forms basically no scripts   - `searchCheck()` runs on main form submit, changes endpoint depending on command   - `validateForm()` only on acknowledgement page, checks to see if box checked -",
+  "version": "1.0.0",
+  "main": "dist/api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "rm -rf dist && tsc --build tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/An-GG/ut-registration-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "types": "./dist/api.d.ts",
+  "bugs": {
+    "url": "https://github.com/An-GG/ut-registration-api/issues"
+  },
+  "homepage": "https://github.com/An-GG/ut-registration-api#readme"
 }
