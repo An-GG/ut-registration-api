@@ -57,19 +57,19 @@ cookies.forEach(c=>cookies_from_authenticated_session.set(c.name, c.value));
 
 #### Constructors
 
-- [constructor](RegistrationSession.md#constructor)
+- [constructor](#constructor)
 
 #### Methods
-- [addCourse](RegistrationSession.md#addcourse)
-- [beginRegistration](RegistrationSession.md#beginregistration)
-- [collectMaxNonces](RegistrationSession.md#collectmaxnonces)
-- [collectNonce](RegistrationSession.md#collectnonce)
-- [dropCourse](RegistrationSession.md#dropcourse)
-- [joinWaitlist](RegistrationSession.md#joinwaitlist)
-- [searchForAnotherSection](RegistrationSession.md#searchforanothersection)
-- [singleTimeAcknowledgement](RegistrationSession.md#singletimeacknowledgement)
-- [swapCourses](RegistrationSession.md#swapcourses)
-- [toggleCourseGradingBasis](RegistrationSession.md#togglecoursegradingbasis)
+- [addCourse](#addcourse)
+- [beginRegistration](#beginregistration)
+- [collectMaxNonces](#collectmaxnonces)
+- [collectNonce](#collectnonce)
+- [dropCourse](#dropcourse)
+- [joinWaitlist](#joinwaitlist)
+- [searchForAnotherSection](#searchforanothersection)
+- [singleTimeAcknowledgement](#singletimeacknowledgement)
+- [swapCourses](#swapcourses)
+- [toggleCourseGradingBasis](#togglecoursegradingbasis)
 
 ### constructor
 
@@ -86,7 +86,7 @@ cookies.forEach(c=>cookies_from_authenticated_session.set(c.name, c.value));
 
 #### Defined in
 
-[api.ts:17](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L17)
+[api.ts:17](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L17)
 
 ### Methods
 
@@ -110,7 +110,7 @@ Add course.
 
 #### Defined in
 
-[api.ts:57](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L57)
+[api.ts:57](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L57)
 
 ___
 
@@ -127,7 +127,7 @@ Not really required, you can call the other methods without calling this. Useful
 
 #### Defined in
 
-[api.ts:37](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L37)
+[api.ts:37](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L37)
 
 ___
 
@@ -143,7 +143,7 @@ Collects many nonces (as many as max_nonce_count) simultaneously.
 
 #### Defined in
 
-[api.ts:185](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L185)
+[api.ts:185](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L185)
 
 ___
 
@@ -163,7 +163,7 @@ This method fetches a single nonce and appends it to the list of available nonce
 
 #### Defined in
 
-[api.ts:172](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L172)
+[api.ts:172](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L172)
 
 ___
 
@@ -185,7 +185,7 @@ Drop course.
 
 #### Defined in
 
-[api.ts:69](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L69)
+[api.ts:69](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L69)
 
 ___
 
@@ -208,7 +208,7 @@ Join course waitlist.
 
 #### Defined in
 
-[api.ts:93](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L93)
+[api.ts:93](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L93)
 
 ___
 
@@ -231,7 +231,7 @@ Get all other sections that are open (not waitlisted) for a given course_id. Wil
 
 #### Defined in
 
-[api.ts:122](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L122)
+[api.ts:122](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L122)
 
 ___
 
@@ -248,7 +248,7 @@ Submits the form at 'registration/confirmEmailAddress.WBX' with the acknowledge 
 
 #### Defined in
 
-[api.ts:45](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L45)
+[api.ts:45](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L45)
 
 ___
 
@@ -271,7 +271,7 @@ Swap courses, aka 'DROP DEPENDENT UPON successfully ADDING'.
 
 #### Defined in
 
-[api.ts:81](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L81)
+[api.ts:81](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L81)
 
 ___
 
@@ -293,4 +293,4 @@ Toggle course grading basis, aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDI
 
 #### Defined in
 
-[api.ts:107](https://github.com/An-GG/ut-registration-api/blob/f3fc748/src/api.ts#L107)
+[api.ts:107](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L107)
