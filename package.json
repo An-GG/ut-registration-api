@@ -6,7 +6,6 @@
     "typedoc-plugin-markdown": "^3.11.11"
   },
   "dependencies": {
-    "@an-gg/ut-auth-utils": "^1.0.4",
     "cheerio": "^1.0.0-rc.10",
     "node-fetch": "^3.1.0"
   },
