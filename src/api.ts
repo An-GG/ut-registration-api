@@ -3,8 +3,6 @@ import { Response } from 'node-fetch';
 import cheerio, { CheerioAPI } from 'cheerio';
 import puppeteer from 'puppeteer-core';
 
-
-
 export class RegistrationSession {
 
     ut_direct_url = 'https://utdirect.utexas.edu/';
@@ -30,10 +28,7 @@ export class RegistrationSession {
 
     /**
      * Equivalent to choosing the target semester among the available semesters at 'registration/chooseSemester.WBX'
-     *
-     * TODO: check if this is necessary to do before submitting other requests
-     * - prob required. if you don't select, it redirects you to chooseSemester (but i didn't see any local cookie/cache storing semester)
-     * - also not sure if you need to do this before submitting singleTimeAcknowledgement
+     * Not really required, you can call the other methods without calling this. Useful to get current state.
      */
     public beginRegistration() {
         return this._req('STGAR', 'POST', 'form', 'registration/registration.WBX', {});
@@ -54,8 +49,6 @@ export class RegistrationSession {
 
     /**
      * Add course.
-     *
-     * TODO: alot of these also have 'Submit' param which is just the submit button text, but idt that's needed
      */
     public addCourse(unique_course_id: number) {
         return this._req('STADD', 'GET', 'url', 'registration/registration.WBX', {
@@ -165,9 +158,9 @@ export class RegistrationSession {
         return data_objs;
     }
 
-    private _ch(ch:CheerioAPI, sel:string) {
-        return ch(sel).toArray().map((n)=>{return cheerio.load(n)})
-    }
+    /**
+     * Login graphically with Google Chrome.
+     */
     public async chromeGUIAuthentication() {
         let chrome = await puppeteer.launch({
             channel: 'chrome',
@@ -176,11 +169,50 @@ export class RegistrationSession {
         });
         let page = await chrome.newPage();
         await page.goto(this.ut_direct_url);
-        await page.on('framenavigated', async (event)=>{
-            console.log(page.url());
-            console.log(await page.cookies());
+
+       return this._waitForCookies(page, chrome);
+    }
+
+    /**
+     * Login programmatically with Google Chrome.
+     * Note: Duo 2FA will still require user input.
+     */
+    public async chromeProgrammaticAuthentication(username:string, password:string) {
+
+       let chrome = await puppeteer.launch({
+          channel: 'chrome',
+       });
+       let page = await chrome.newPage();
+       await page.goto(this.ut_direct_url);
+       await page.waitForNavigation();
+       await page.waitForSelector('.loginForm');
+       await page.type('#username', username);
+       await page.type('#password', password);
+       await page.click('input[type=submit]');
+       await page.waitForFrame(async (f)=>{
+          return f.url().match(/https:\/\/.+\.duosecurity\.com\/frame\/prompt/) != null;
+       });
+       
+       let duoframe = page.frames()[1];
+       await duoframe.$eval('#auth_methods > fieldset:nth-child(1) > div.row-label.push-label > button', (el)=>{
+         (el as HTMLButtonElement).click(); 
+       });
+
+       return this._waitForCookies(page, chrome);
+    }
+
+    private async _waitForCookies(page:puppeteer.Page, chrome:puppeteer.Browser) {
+        return new Promise<Map<string, string>>(async (resolve, reject)=>{
+            await page.on('framenavigated', async (event)=>{
+                if ((new URL(page.url())).host == (new URL(this.ut_direct_url)).host) {
+                    for (let c of await page.cookies()) {
+                        this.cookies.set(c.name, c.value);
+                    }
+                    await chrome.close();
+                    resolve(this.cookies);
+                }
+            });
         });
-        return page;
     }
 
     public async collectNonce() {
@@ -219,6 +251,10 @@ export class RegistrationSession {
 
         this.used_nonces_count++;
         return this.new_nonces.shift();
+    }
+
+    private _ch(ch:CheerioAPI, sel:string) {
+        return ch(sel).toArray().map((n)=>{return cheerio.load(n)})
     }
 
     private _parse_cookie_string(cs: string) {
@@ -354,14 +390,3 @@ export type RegistrationSessionOptions = Partial<{
     min_nonce_count:number
 }>
 
-/**
- *  TODO 
- *  - test if collecting many nonces causes earlier ones to invalidate
- *      - what we know: when reg period is closed you don't need valid nonce to get same response 
- *  
- *  To build
- *  - elegant way to import your session cookies
- *  * remaining request methods
- *  - launch at precise time
- *      - scrape reg time?
- **/
