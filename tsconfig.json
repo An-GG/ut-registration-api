@@ -5,6 +5,8 @@
       "noImplicitAny": true,
       "moduleResolution": "node",
       "sourceMap": true,
+      "declaration": true,
+      "declarationMap": true,
       "outDir": "dist",
       "lib": ["esnext"],
       "esModuleInterop": true,

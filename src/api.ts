@@ -1,14 +1,18 @@
 import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 import cheerio, { CheerioAPI } from 'cheerio';
-import puppeteer from 'puppeteer-core';
 
 export class RegistrationSession {
 
-    ut_direct_url = 'https://utdirect.utexas.edu/';
-    min_nonce_count = 10;
-    max_nonce_count = 20;
+    private ut_direct_url = 'https://utdirect.utexas.edu/';
+    private min_nonce_count = 10;
+    private max_nonce_count = 20;
 
+    private cookies:Map<string, string> = new Map();
+    private ccyys: string;
+
+    private new_nonces: string[] = [];
+    private used_nonces_count: number = 0;
 
     constructor(year: number, semester: 'Spring' | 'Summer' | 'Fall', init_cookies?: Map<string, string>, opts?:RegistrationSessionOptions) {
         let sem_codes = {
@@ -159,62 +163,12 @@ export class RegistrationSession {
     }
 
     /**
-     * Login graphically with Google Chrome.
+     * A unique server-generated nonce is required alongside each request, which can only be used once. These are normally embedded in the HTML form content 
+     * returned after every request, but acquiring a nonce this way makes things unnecessarily slow because we have to wait for the server to respond.
+     * Fortunately, we can collect many nonces before making a single request from the chooseSemester.WBX page and use them whenever we want.
+     * 
+     * This method fetches a single nonce and appends it to the list of available nonces.
      */
-    public async chromeGUIAuthentication() {
-        let chrome = await puppeteer.launch({
-            channel: 'chrome',
-            headless: false,
-            defaultViewport: null
-        });
-        let page = await chrome.newPage();
-        await page.goto(this.ut_direct_url);
-
-       return this._waitForCookies(page, chrome);
-    }
-
-    /**
-     * Login programmatically with Google Chrome.
-     * Note: Duo 2FA will still require user input.
-     */
-    public async chromeProgrammaticAuthentication(username:string, password:string) {
-
-       let chrome = await puppeteer.launch({
-          channel: 'chrome',
-       });
-       let page = await chrome.newPage();
-       await page.goto(this.ut_direct_url);
-       await page.waitForNavigation();
-       await page.waitForSelector('.loginForm');
-       await page.type('#username', username);
-       await page.type('#password', password);
-       await page.click('input[type=submit]');
-       await page.waitForFrame(async (f)=>{
-          return f.url().match(/https:\/\/.+\.duosecurity\.com\/frame\/prompt/) != null;
-       });
-       
-       let duoframe = page.frames()[1];
-       await duoframe.$eval('#auth_methods > fieldset:nth-child(1) > div.row-label.push-label > button', (el)=>{
-         (el as HTMLButtonElement).click(); 
-       });
-
-       return this._waitForCookies(page, chrome);
-    }
-
-    private async _waitForCookies(page:puppeteer.Page, chrome:puppeteer.Browser) {
-        return new Promise<Map<string, string>>(async (resolve, reject)=>{
-            await page.on('framenavigated', async (event)=>{
-                if ((new URL(page.url())).host == (new URL(this.ut_direct_url)).host) {
-                    for (let c of await page.cookies()) {
-                        this.cookies.set(c.name, c.value);
-                    }
-                    await chrome.close();
-                    resolve(this.cookies);
-                }
-            });
-        });
-    }
-
     public async collectNonce() {
         let n_before = this.new_nonces.length + this.used_nonces_count;
         let r = await this._fetch('https://utdirect.utexas.edu/registration/chooseSemester.WBX', {});
@@ -225,6 +179,9 @@ export class RegistrationSession {
         return r;
     }
 
+    /**
+     * Collects many nonces (as many as max_nonce_count) simultaneously. 
+     */
     public async collectMaxNonces() {
         let waiters = [];
         for (let i = 0; i < this.max_nonce_count - this.new_nonces.length; i++) {
@@ -233,12 +190,6 @@ export class RegistrationSession {
         return await Promise.all(waiters);
     }
 
-    cookies:Map<string, string> = new Map();
-    ccyys: string;
-
-    new_nonces: string[] = [];
-    used_nonces_count: number = 0;
-    pending_nonce_requests: Promise<any>[] = [];
 
 
     private _take_nonce() {
