@@ -39,7 +39,8 @@ async function main() {
 }
 main();
 ```
-**NOTE:** Registration methods throw an error when they are unsuccessful. Assume method calls that don't throw completed successfully.  
+> **NOTE:** Registration methods throw an error when they are unsuccessful. Assume method calls that don't throw completed successfully.
+
 When running the example (with a valid EID/password), `addCourse` throws because `11111` isn't a valid course number.
 ```
 $ node example.js
