@@ -17,11 +17,14 @@ export class RegistrationSession {
     private semester: Request.Semester;
     private ccyys: string;
 
-    constructor(year: number, semester: Request.Semester, init_cookies?: Map<string, string>, opts?:RegistrationSessionOptions) {
+    constructor(year: number, semester: Request.Semester, init_cookies?: Request.Cookie[], opts?:RegistrationSessionOptions) {
         this.year = year;
         this.semester = semester;
         this.ccyys = year + '' + this.sem_codes[semester];
-        this.cookies = init_cookies ? init_cookies : this.cookies;
+
+        if (init_cookies) {
+            init_cookies.forEach(c=>this.cookies.set(c.name, c.value));
+        }
         
         opts = opts ? opts : {};
         for (let k of Object.keys(opts)) {
@@ -236,14 +239,55 @@ export class RegistrationSession {
             }
         }
 
+        // Attempt to parse registration bars
+        let bars_elements = res
+            .dom('div.textblock.barlist')
+        
+        let bars_cleared = bars_elements.text().trim() == 'You have no bars at this time.';
+
         return {
+            bars: {
+                bars_cleared,
+                _raw_elements: bars_elements,
+                _raw_text: bars_elements.text() 
+            },
             schedule: {
                 times: times,
                 _raw_elements: schedule_elements,
                 _raw_times: times_raw
             },
-            encountered_errors
+            encountered_errors,
+            _raw_ris_fetch_result: res,
         };
+    }
+
+    private _take_nonce() {
+        if (this.new_nonces.length == 0)
+            throw new Error('Ran out of nonces!');
+        if (this.new_nonces.length < this.min_nonce_count)
+            console.log(`WARNING: # of unused nonces (${this.new_nonces.length}) is less than defined minimum ${this.min_nonce_count}!`);
+        while (this.new_nonces.length > this.max_nonce_count)
+            { this.new_nonces.shift(); this.used_nonces_count++; }
+
+        this.used_nonces_count++;
+        return this.new_nonces.shift();
+    }
+
+    private _ch(ch:CheerioAPI, sel:string) {
+        return ch(sel).toArray().map((n)=>{return cheerio.load(n)})
+    }
+
+    private _parse_cookie_string(cs: string) {
+        let seperated_cs = cs.split(', ');
+        for (let single_cs of seperated_cs) {
+            let single_cs_vars = single_cs.split('; ').map((ck)=>ck.split('='));
+            // first var is k/v
+            this.cookies.set(single_cs_vars[0][0], single_cs_vars[0][1]);
+        }
+    }
+
+    private _make_cookie_string() {
+        return Array.from(this.cookies).map(c=>c[0]+'='+c[1]).join('; ');
     }
 
     private _parse_ris_daterange(s:string) {
@@ -304,35 +348,6 @@ export class RegistrationSession {
                 current.setDate(current.getDate() + 1);
             }
             return times;
-    }
-
-    private _take_nonce() {
-        if (this.new_nonces.length == 0) 
-            throw new Error('Ran out of nonces!');
-        if (this.new_nonces.length < this.min_nonce_count)
-            console.log(`WARNING: # of unused nonces (${this.new_nonces.length}) is less than defined minimum ${this.min_nonce_count}!`);
-        while (this.new_nonces.length > this.max_nonce_count)
-            { this.new_nonces.shift(); this.used_nonces_count++; }
-
-        this.used_nonces_count++;
-        return this.new_nonces.shift();
-    }
-
-    private _ch(ch:CheerioAPI, sel:string) {
-        return ch(sel).toArray().map((n)=>{return cheerio.load(n)})
-    }
-
-    private _parse_cookie_string(cs: string) {
-        let seperated_cs = cs.split(', ');
-        for (let single_cs of seperated_cs) {
-            let single_cs_vars = single_cs.split('; ').map((ck)=>ck.split('='));
-            // first var is k/v
-            this.cookies.set(single_cs_vars[0][0], single_cs_vars[0][1]);
-        }
-    }
-
-    private _make_cookie_string() {
-        return Array.from(this.cookies).map(c=>c[0]+'='+c[1]).join('; ');
     }
 
     async _fetch(url: Parameters<typeof fetch>[0], opts: Parameters<typeof fetch>[1]): Promise<{r:Response, body?:string, dom?: CheerioAPI}> {
@@ -451,6 +466,8 @@ export namespace Request {
         | 'STUOF'
 
     export type Semester = 'Spring' | 'Summer' | 'Fall'
+
+    export type Cookie = { name:string, value:string, [k:string]:any }
 }
 
 export type RegistrationSessionOptions = Partial<{
