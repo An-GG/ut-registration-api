@@ -1,13 +1,13 @@
 {
-  "type": "module",
   "devDependencies": {
     "@types/node": "^17.0.8",
     "typedoc": "^0.22.10",
     "typedoc-plugin-markdown": "^3.11.11"
   },
   "dependencies": {
+    "@types/node-fetch": "^2.5.12",
     "cheerio": "^1.0.0-rc.10",
-    "node-fetch": "^3.1.0"
+    "node-fetch": "^2.6.7"
   },
   "name": "@an-gg/ut-registration-api",
   "description": "- Uses get and post requests with query params, works using forms basically no scripts   - `searchCheck()` runs on main form submit, changes endpoint depending on command   - `validateForm()` only on acknowledgement page, checks to see if box checked -",

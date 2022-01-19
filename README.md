@@ -33,13 +33,13 @@ await session.singleTimeAcknowledgement();
 await session.addCourse(12345);
 ```
 
-### What is **cookies_from_authenticated_session** ?
+### What is `cookies_from_authenticated_session` ?
 
 `RegistrationSession` cannot authenticate you using your EID/password because this is non-trivially complicated. Instead, you must provide cookies from an already authenticated session, for example from your browser.
 
-You can also use [@an-gg/ut-auth-utils](https://github.com/An-GG/ut-auth-utils), which allows you to authenticate using your EID/password and returns the authenticated session's cookies for a given domain (in this case it's [https://utdirect.utexas.edu]()). 
+You can also use [@an-gg/ut-auth-utils](https://github.com/An-GG/ut-auth-utils), which allows you to authenticate using your EID/password and returns the authenticated session's cookies for a given domain (in this case it's [https://utdirect.utexas.edu]()). Here is a complete example:
 
-### Example
+### Complete Example
 
 ```ts
 import { chromeProgrammaticAuthentication, UT_DIRECT_URL } from '@an-gg/ut-auth-utils'
@@ -48,6 +48,20 @@ let cookies = await chromeProgrammaticAuthentication('UT EID', 'password', UT_DI
 // RegistrationSession constructor takes slightly different format
 let cookies_from_authenticated_session = new Map<string, string>();
 cookies.forEach(c=>cookies_from_authenticated_session.set(c.name, c.value));
+
+import { RegistrationSession } from '@an-gg/ut-registration-api'
+
+let session = new RegistrationSession(2022, 'Spring', cookies_from_authenticated_session);
+
+// Need to get some nonces initially. By default, this will collect 20 nonces. Nonces should repopulate after the server responds to requests.
+await session.collectMaxNonces();
+
+// Single time acknowledgement is required only once for each semester.
+// This is the page that asks you to check the box next to:
+// 'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
+await session.singleTimeAcknowledgement();
+
+await session.addCourse(12345);
 ```
 
 ## API

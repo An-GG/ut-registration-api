@@ -5,22 +5,22 @@ import cheerio, { CheerioAPI } from 'cheerio';
 export class RegistrationSession {
 
     private ut_direct_url = 'https://utdirect.utexas.edu/';
+    private cookies:Map<string, string> = new Map();
+
     private min_nonce_count = 10;
     private max_nonce_count = 20;
-
-    private cookies:Map<string, string> = new Map();
-    private ccyys: string;
-
     private new_nonces: string[] = [];
     private used_nonces_count: number = 0;
 
-    constructor(year: number, semester: 'Spring' | 'Summer' | 'Fall', init_cookies?: Map<string, string>, opts?:RegistrationSessionOptions) {
-        let sem_codes = {
-            'Spring': 2,
-            'Summer': 6,
-            'Fall': 9
-        }
-        this.ccyys = year + '' + sem_codes[semester];
+    private sem_codes: {[k in Request.Semester]:number}  = { 'Spring': 2, 'Summer': 6, 'Fall': 9 }
+    private year: number;
+    private semester: Request.Semester;
+    private ccyys: string;
+
+    constructor(year: number, semester: Request.Semester, init_cookies?: Map<string, string>, opts?:RegistrationSessionOptions) {
+        this.year = year;
+        this.semester = semester;
+        this.ccyys = year + '' + this.sem_codes[semester];
         this.cookies = init_cookies ? init_cookies : this.cookies;
         
         opts = opts ? opts : {};
@@ -190,7 +190,121 @@ export class RegistrationSession {
         return await Promise.all(waiters);
     }
 
+    
+    /** Extra Utility Methods */
 
+    /**
+     * Get registration information from the RIS page.
+     */
+    public async getRIS(prevent_throw_on_parse_error?: boolean) {
+        let res = await this._fetch( this.ut_direct_url + 'registrar/ris.WBX', {
+            body: `ccyys=${this.ccyys}&seq_num=0`,
+            method: 'POST',
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+            }
+        });
+        let encountered_errors: Error[] = [];
+
+        let schedule_elements = res
+            .dom('a[name=reg]')
+            .nextUntil('.textblock')
+            .last()
+            .next()
+            .children()
+            .not('.textblock');
+        let times_raw = schedule_elements
+            .text()
+            .split('\n')
+            .join('')
+            .trim()
+            .split('|')
+            .map(t => t.trim());
+
+        // Attempt to parse registration times
+        let times: {start:Date, stop:Date}[] = [];
+        for (let t of times_raw) {
+            try {
+                let parsed_times = this._parse_ris_daterange(t);
+                times.push(...parsed_times);
+            } catch(e) {
+                if (!prevent_throw_on_parse_error) {
+                    throw e;
+                } else {
+                    encountered_errors.push(e);
+                }
+            }
+        }
+
+        return {
+            schedule: {
+                times: times,
+                _raw_elements: schedule_elements,
+                _raw_times: times_raw
+            },
+            encountered_errors
+        };
+    }
+
+    private _parse_ris_daterange(s:string) {
+            if (s.length == 0) { return []; }
+            let _seperated = s.split(',');
+            if (_seperated.length != 2) { throw new Error('Something went wrong while parsing RIS schedule. \n\n'+s); }
+            let regdays = _seperated[0].split('-').map(rg=>rg.trim());
+            let timewindow = _seperated[1].split('-').map(tw=>tw.trim());
+            if (timewindow.length != 2) { throw new Error('Something went wrong while parsing RIS schedule. \n\n'+s); }
+            
+            // Manual Cleanup
+            // If regdays has an end date, if the end date doesn't include a space (so probably only a number), append the month from the start date
+            // If regdays only has start, push the start date as end date
+            if (regdays.length == 2) {
+                if (!regdays[1].includes(' ')) {
+                    let monthstr = regdays[0].split(' ')[0];
+                    regdays[1] = monthstr + ' ' + regdays[1];
+                }
+            } else { regdays.push(regdays[0]); }
+
+            // Add year to reg dates
+            // If spring semester, then check if month is September or later. If it is, year is 1 less than Semester year. 
+            regdays = regdays.map((rg) => {
+                let d = new Date(rg);
+                let y = this.year;
+                if (this.semester == 'Spring') {
+                    if (d.getMonth() >= 7) {
+                        y -= 1;
+                    }
+                }
+                return rg + ' ' + y;
+            });
+
+            // If the end time is 'Midnight' replace with 11:59 PM
+            if (timewindow[1] == 'Midnight') {
+                timewindow[1] = '11:59 PM';
+            }
+
+            // If a time doesn't include ':' then add it
+            timewindow = timewindow.map(tw => {
+                if (!tw.includes(':')) {
+                    return tw.split(' ').join(':00 ');
+                } else {
+                    return tw;
+                }
+            });
+
+            let current = new Date(regdays[0]);
+            let end_date = new Date(regdays[1]);
+
+            let times: {start:Date, stop:Date}[] = [];
+            while (current <= end_date) {
+                let c_str = current.toISOString().split('T')[0];
+                times.push({
+                    start: new Date(timewindow[0] + ' ' + c_str),
+                    stop:  new Date(timewindow[1] + ' ' + c_str),
+                });
+                current.setDate(current.getDate() + 1);
+            }
+            return times;
+    }
 
     private _take_nonce() {
         if (this.new_nonces.length == 0) 
@@ -291,6 +405,7 @@ export namespace Request {
         'registration/registration.WBX' 
         | 'registration/searchClasses.WBX' 
         | 'registration/confirmEmailAddress.WBX'
+        | 'registrar/ris.WBX'
 
     export type ParamKeys = 
         's_ccyys' 
@@ -334,6 +449,8 @@ export namespace Request {
         | 'STGOF'
         | 'STGAR'
         | 'STUOF'
+
+    export type Semester = 'Spring' | 'Summer' | 'Fall'
 }
 
 export type RegistrationSessionOptions = Partial<{
