@@ -15,53 +15,60 @@ Add to your project:
 $ npm i @an-gg/ut-registration-api
 ```
 
-## Usage
+## Example
 
-```ts
-import { RegistrationSession } from '@an-gg/ut-registration-api'
+```js
+let { chromeProgrammaticAuthentication, UT_DIRECT_URL } = require('@an-gg/ut-auth-utils')
+let { RegistrationSession } = require('@an-gg/ut-registration-api')
 
-let session = new RegistrationSession(2022, 'Spring', cookies_from_authenticated_session);
+async function main() {
+    
+    let cookies_from_authenticated_session = await chromeProgrammaticAuthentication('UT EID', 'password', UT_DIRECT_URL);
+    let session = new RegistrationSession(2022, 'Spring', cookies_from_authenticated_session);
 
-// Need to get some nonces initially. By default, this will collect 20 nonces. Nonces should repopulate after the server responds to requests.
-await session.collectMaxNonces();
+    // Need to get some nonces initially.
+    // By default, this will collect 20 nonces. Nonces should repopulate after the server responds to requests.
+    await session.collectMaxNonces();
 
-// Single time acknowledgement is required only once for each semester.
-// This is the page that asks you to check the box next to:
-// 'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
-await session.singleTimeAcknowledgement();
+    // Single time acknowledgement is required only once for each semester.
+    // This is the page that asks you to check the box next to:
+    // 'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
+    await session.singleTimeAcknowledgement();
 
-await session.addCourse(12345);
+    await session.addCourse(11111);
+}
+main();
+```
+**NOTE:** Registration methods throw an error when they are unsuccessful. Assume method calls that don't throw completed successfully.  
+When running the example (with a valid EID/password), `addCourse` throws because `11111` isn't a valid course number.
+```
+$ node example.js
+.../node_modules/@an-gg/ut-registration-api/dist/api.js:390
+                throw new Error(r.dom('span.error').parent().text());
+Error:         
+        Add was unsuccessful because:
+                The unique number entered is not a valid number.
+                (Code:0095)
+...
 ```
 
-### What is `cookies_from_authenticated_session` ?
+### What is `cookies_from_authenticated_session` ??
 
-`RegistrationSession` cannot authenticate you using your EID/password because this is non-trivially complicated. Instead, you must provide cookies from an already authenticated session, for example from your browser.
+`RegistrationSession` cannot authenticate you using your EID/password directly because this is non-trivially complicated. Instead, you must provide cookies from an already authenticated session.
 
-You can also use [@an-gg/ut-auth-utils](https://github.com/An-GG/ut-auth-utils), which allows you to authenticate using your EID/password and returns the authenticated session's cookies for a given domain (in this case it's [https://utdirect.utexas.edu]()). Here is a complete example:
+**Recomended Way To Get Gookies**: [@an-gg/ut-auth-utils](https://github.com/An-GG/ut-auth-utils) is used in the example. This package allows you to authenticate into a domain protected by the UT SSO service using your EID/password, either programmatically or through an automated Chrome window, and returns the authenticated session's cookies.
 
-### Complete Example
+
+## TypeScript Usage
 
 ```ts
-import { chromeProgrammaticAuthentication, UT_DIRECT_URL } from '@an-gg/ut-auth-utils'
-let cookies = await chromeProgrammaticAuthentication('UT EID', 'password', UT_DIRECT_URL);
-
-// RegistrationSession constructor takes slightly different format
-let cookies_from_authenticated_session = new Map<string, string>();
-cookies.forEach(c=>cookies_from_authenticated_session.set(c.name, c.value));
-
 import { RegistrationSession } from '@an-gg/ut-registration-api'
 
 let session = new RegistrationSession(2022, 'Spring', cookies_from_authenticated_session);
-
-// Need to get some nonces initially. By default, this will collect 20 nonces. Nonces should repopulate after the server responds to requests.
 await session.collectMaxNonces();
-
-// Single time acknowledgement is required only once for each semester.
-// This is the page that asks you to check the box next to:
-// 'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
 await session.singleTimeAcknowledgement();
 
-await session.addCourse(12345);
+await session.addCourse(11111);
 ```
 
 ## API
