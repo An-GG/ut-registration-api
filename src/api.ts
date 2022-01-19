@@ -261,6 +261,26 @@ export class RegistrationSession {
         };
     }
 
+    /**
+     * Get class listing from the class listing page.
+     */
+    public async getClassListing() {
+        let res = await this._fetch(this.ut_direct_url + 'registration/classlist.WBX?sem=' + this.ccyys, {});
+        let headers = this._ch(res.dom, 'table th').map(elm=>elm.text());
+        let rows = this._ch(res.dom, 'table tr[valign=top]').map(elm=>{
+            let tds = this._ch(elm, 'td');
+            while (tds.length > headers.length) { tds.pop(); }
+            let out:{ [k in string]:string } = {}
+            let i = 0;
+            for (let td of tds) {
+                out[headers[i]]=td.text()
+                i++;
+            }
+            return out;
+        });
+        return rows;
+    }
+
     private _take_nonce() {
         if (this.new_nonces.length == 0)
             throw new Error('Ran out of nonces!');
