@@ -9,9 +9,9 @@
     "cheerio": "^1.0.0-rc.10",
     "node-fetch": "^2.6.7"
   },
-  "name": "@an-gg/ut-registration-api",
+  "name": "ut-registration-api",
   "description": "- Uses get and post requests with query params, works using forms basically no scripts   - `searchCheck()` runs on main form submit, changes endpoint depending on command   - `validateForm()` only on acknowledgement page, checks to see if box checked -",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "main": "dist/api.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

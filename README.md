@@ -12,14 +12,14 @@ This interface is a one-to-one translation of [all the endpoints I have encounte
 
 Add to your project:
 ```sh
-$ npm i @an-gg/ut-registration-api
+$ npm i ut-registration-api
 ```
 
 ## Example
 
 ```js
-let { chromeProgrammaticAuthentication, UT_DIRECT_URL } = require('@an-gg/ut-auth-utils')
-let { RegistrationSession } = require('@an-gg/ut-registration-api')
+let { chromeProgrammaticAuthentication, UT_DIRECT_URL } = require('ut-auth-utils')
+let { RegistrationSession } = require('ut-registration-api')
 
 async function main() {
     
@@ -43,7 +43,7 @@ main();
 When running the example (with a valid EID/password), `addCourse` throws because `11111` isn't a valid course number.
 ```
 $ node example.js
-.../node_modules/@an-gg/ut-registration-api/dist/api.js:390
+.../node_modules/ut-registration-api/dist/api.js:390
                 throw new Error(r.dom('span.error').parent().text());
 Error:         
         Add was unsuccessful because:
@@ -56,13 +56,13 @@ Error:
 
 `RegistrationSession` cannot authenticate you using your EID/password directly because this is non-trivially complicated. Instead, you must provide cookies from an already authenticated session.
 
-**Recomended Way To Get Gookies**: [@an-gg/ut-auth-utils](https://github.com/An-GG/ut-auth-utils) is used in the example. This package allows you to authenticate into a domain protected by the UT SSO service using your EID/password, either programmatically or through an automated Chrome window, and returns the authenticated session's cookies.
+**Recomended Way To Get Gookies**: [ut-auth-utils](https://github.com/An-GG/ut-auth-utils) is used in the example. This package allows you to authenticate into a domain protected by the UT SSO service using your EID/password, either programmatically or through an automated Chrome window, and returns the authenticated session's cookies.
 
 
 ## TypeScript Usage
 
 ```ts
-import { RegistrationSession } from '@an-gg/ut-registration-api'
+import { RegistrationSession } from 'ut-registration-api'
 
 let session = new RegistrationSession(2022, 'Spring', cookies_from_authenticated_session);
 await session.collectMaxNonces();
