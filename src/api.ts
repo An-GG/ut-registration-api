@@ -440,7 +440,6 @@ export namespace Request {
         'registration/registration.WBX' 
         | 'registration/searchClasses.WBX' 
         | 'registration/confirmEmailAddress.WBX'
-        | 'registrar/ris.WBX'
 
     export type ParamKeys = 
         's_ccyys' 
