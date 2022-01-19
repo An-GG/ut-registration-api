@@ -154,42 +154,6 @@ Not really required, you can call the other methods without calling this. Useful
 
 ___
 
-### collectMaxNonces
-
-▸ **collectMaxNonces**(): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }[]\>
-
-Collects many nonces (as many as max_nonce_count) simultaneously.
-
-#### Returns
-
-`Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }[]\>
-
-#### Defined in
-
-[api.ts:185](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L185)
-
-___
-
-### collectNonce
-
-▸ **collectNonce**(): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
-
-A unique server-generated nonce is required alongside each request, which can only be used once. These are normally embedded in the HTML form content
-returned after every request, but acquiring a nonce this way makes things unnecessarily slow because we have to wait for the server to respond.
-Fortunately, we can collect many nonces before making a single request from the chooseSemester.WBX page and use them whenever we want.
-
-This method fetches a single nonce and appends it to the list of available nonces.
-
-#### Returns
-
-`Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
-
-#### Defined in
-
-[api.ts:172](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L172)
-
-___
-
 ### dropCourse
 
 ▸ **dropCourse**(`unique_course_id`): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
@@ -317,3 +281,97 @@ Toggle course grading basis, aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDI
 #### Defined in
 
 [api.ts:107](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L107)
+
+___
+
+### collectMaxNonces
+
+▸ **collectMaxNonces**(): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }[]\>
+
+Collects many nonces (as many as max_nonce_count) simultaneously.
+
+#### Returns
+
+`Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }[]\>
+
+#### Defined in
+
+[api.ts:185](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L185)
+
+___
+
+### collectNonce
+
+▸ **collectNonce**(): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
+
+A unique server-generated nonce is required alongside each request, which can only be used once. These are normally embedded in the HTML form content
+returned after every request, but acquiring a nonce this way makes things unnecessarily slow because we have to wait for the server to respond.
+Fortunately, we can collect many nonces before making a single request from the chooseSemester.WBX page and use them whenever we want.
+
+This method fetches a single nonce and appends it to the list of available nonces.
+
+#### Returns
+
+`Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
+
+#### Defined in
+
+[api.ts:172](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L172)
+
+___
+
+### getClassListing
+
+▸ **getClassListing**(): `Promise`<{}[]\>
+
+Get class listing from the class listing page.
+
+#### Returns
+
+`Promise`<{}[]\>
+
+#### Defined in
+
+[api.ts:267](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L267)
+
+___
+
+### getRIS
+
+▸ **getRIS**(`prevent_throw_on_parse_error?`): Promise>
+
+Get registration information from the RIS page. If `prevent_throw_on_parse_error` is true, method will return even if there were parsing errors. Use `encountered_errors` to detect if returned values may be inaccurate. 
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `prevent_throw_on_parse_error?` | `boolean` |
+
+#### Returns
+```ts
+Promise<{
+    bars: {
+        bars_cleared: boolean;
+        _raw_elements: Cheerio<Element>;
+        _raw_text: string;
+    };
+    schedule: {
+        times: {
+            start: Date;
+            stop: Date;
+        }[];
+        _raw_elements: Cheerio<Element>;
+        _raw_times: string[];
+    };
+    encountered_errors: Error[];
+    _raw_ris_fetch_result: {
+        body?: string
+        dom?: CheerioAPI
+        r: Response
+    }
+}>
+```
+#### Defined in
+
+[api.ts:202](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L202)
