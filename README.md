@@ -1,5 +1,7 @@
 # ut-registration-api
 
+> Check out the notes I wrote for myself while reverse engineering this API here: https://gist.github.com/An-GG/9ef0bfb88744a8183ec3d5faf1a39471 
+
 Optimized interface for UT Austin's registration client written in TypeScript.
 
 This interface is a one-to-one translation of [all the endpoints I have encountered and documented](https://gist.github.com/An-GG/9ef0bfb88744a8183ec3d5faf1a39471) with minor convenience abstractions.
