@@ -1,6 +1,11 @@
 # ut-registration-api
 
 > Check out the notes I wrote for myself while reverse engineering this API here: https://gist.github.com/An-GG/9ef0bfb88744a8183ec3d5faf1a39471 
+> *Also I'm telling you in advance so you don't kick yourself when it doesn't just work **automagically***, but I wrote this in like a day while being high out of my mind on ketamine so don't get mad when u gotta fix some of this shit if its broken. 
+
+> Actually, if you do end up forking this repository and and ironing out any mistakes, please send back a pull request so I can merge the changes. 
+
+> Final note, if you actually want to use this repo you'll need to install both this node module and the complement needed for authentication, here https://github.com/An-GG/ut-auth-utils. I highly reccomend using browser based authentication insteading of trying to find session tokens yourself. (It was working for me when I last updated this project but it is easy to change the javascript for how those tokens work.) 
 
 Optimized interface for UT Austin's registration client written in TypeScript.
 
