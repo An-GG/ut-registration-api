@@ -2,6 +2,10 @@ import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 import cheerio, { CheerioAPI } from 'cheerio';
 
+/**
+ * Class representing an active browser session connected to UT Direct, a web application used for course registration at the University of Texas at Austin.
+ * @class RegistrationSession
+ */
 export class RegistrationSession {
 
     private ut_direct_url = 'https://utdirect.utexas.edu/';
@@ -17,6 +21,13 @@ export class RegistrationSession {
     private semester: Request.Semester;
     private ccyys: string;
 
+    /**
+     * Create a new registration session.
+     * @constructor
+     * @param {number} year - Year of the semester.
+     * @param {Request.Semester} semester - Semester (Spring, Summer, or Fall).
+     * @param {RegistrationSessionOptions} [opts] - Optional configuration options.
+     */
     constructor(year: number, semester: Request.Semester, init_cookies?: Request.Cookie[], opts?:RegistrationSessionOptions) {
         this.year = year;
         this.semester = semester;
@@ -34,17 +45,24 @@ export class RegistrationSession {
     }
 
     /**
-     * Equivalent to choosing the target semester among the available semesters at 'registration/chooseSemester.WBX'
-     * Not really required, you can call the other methods without calling this. Useful to get current state.
+     * Begins the registration process by selecting the target semester among the available semesters.
+     * Not required to call, but useful for getting the current state.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
      */
     public beginRegistration() {
         return this._req('STGAR', 'POST', 'form', 'registration/registration.WBX', {});
     }
 
     /**
-     * Submits the form at 'registration/confirmEmailAddress.WBX' with the acknowledge box ticked.
-     * 'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
-     */
+     * Submits the acknowledgment form (that shows up only the first time you enter registration each semester) 
+     * stating that 'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
+     *
+     * Submitting this form is technically the only thing you need to wait on before requesting course add/drops.
+     * 
+     * I have a vague feeling that the server is probably too lazy to confirm you submitted this form, and that you don't need to 
+     * actually submit this before making real requests, but I've never tried doing that.   ¯\\_(ツ)_/¯
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+    */
     public singleTimeAcknowledgement() {
         return this._req('STUOF', 'POST', 'form', 'registration/confirmEmailAddress.WBX', {
             's_sbec': 'T',
@@ -55,7 +73,9 @@ export class RegistrationSession {
     }
 
     /**
-     * Add course.
+     * Adds a course to your schedule.
+     * @param unique_course_id {number} The unique course identifier.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
      */
     public addCourse(unique_course_id: number) {
         return this._req('STADD', 'GET', 'url', 'registration/registration.WBX', {
@@ -67,7 +87,9 @@ export class RegistrationSession {
     }
 
     /**
-     * Drop course.
+     * Drops a course from your schedule.
+     * @param unique_course_id {number} The unique course identifier.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
      */
     public dropCourse(unique_course_id: number) {
         return this._req('STDRP', 'GET', 'url', 'registration/registration.WBX', {
@@ -79,7 +101,11 @@ export class RegistrationSession {
     }
 
     /**
-     * Swap courses, aka 'DROP DEPENDENT UPON successfully ADDING'.
+     * Swaps courses with the condition of dropping one course only if adding the other is successful.
+     * aka 'DROP DEPENDENT UPON successfully ADDING'.
+     * @param drop_unique_id {number} The unique course identifier of the course to be dropped.
+     * @param add_unique_id {number} The unique course identifier of the course to be added.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
      */
     public swapCourses(drop_unique_id: number, add_unique_id: number) {
         return this._req('STSWP', 'GET', 'url', 'registration/registration.WBX', {
@@ -91,7 +117,10 @@ export class RegistrationSession {
     }
 
     /**
-     * Join course waitlist.
+     * Joins the waitlist for a course.
+     * @param unique_course_id {number} The unique course identifier.
+     * @param optional_swap_course_id {number} [optional] The unique course identifier of the course to be swapped if a seat becomes available.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
      */
     public joinWaitlist(unique_course_id: number, optional_swap_course_id?: number) {
         return this._req('STAWL', 'GET', 'url', 'registration/registration.WBX', {
@@ -105,7 +134,10 @@ export class RegistrationSession {
     }
 
     /**
-     * Toggle course grading basis, aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDIT basis'
+     * Toggles the grading basis for a course (e.g., change between Pass/Fail and Credit/No Credit).
+     * aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDIT basis'
+     * @param unique_course_id {number} The unique course identifier.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
      */
     public toggleCourseGradingBasis(unique_course_id: number) {
         return this._req('STCPF', 'GET', 'url', 'registration/registration.WBX', {
@@ -119,8 +151,11 @@ export class RegistrationSession {
 
 
     /**
-     * Get all other sections that are open (not waitlisted) for a given course_id. Will never return the given course_id as a result, even if the given course is open.
-     * 'SEARCH for another section of the same course'
+     * Searches for other open sections of the same course.
+     * aka 'SEARCH for another section of the same course'
+     * Gets all other sections that are open (not waitlisted) for a given course_id. Will never return the given course_id as a result, even if the given course is open.
+     * @param unique_course_id {number} The unique course identifier.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
      */
     public async searchForAnotherSection(unique_course_id: number) {
         let dom = (await this._req('STGAC', 'GET', 'url', 'registration/searchClasses.WBX', {
@@ -166,11 +201,12 @@ export class RegistrationSession {
     }
 
     /**
+     * This method fetches a single nonce and appends it to the list of available nonces.
+     * 
      * A unique server-generated nonce is required alongside each request, which can only be used once. These are normally embedded in the HTML form content 
      * returned after every request, but acquiring a nonce this way makes things unnecessarily slow because we have to wait for the server to respond.
      * Fortunately, we can collect many nonces before making a single request from the chooseSemester.WBX page and use them whenever we want.
-     * 
-     * This method fetches a single nonce and appends it to the list of available nonces.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
      */
     public async collectNonce() {
         let n_before = this.new_nonces.length + this.used_nonces_count;
@@ -184,6 +220,7 @@ export class RegistrationSession {
 
     /**
      * Collects many nonces (as many as max_nonce_count) simultaneously. 
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>}[] A set of promises containing the server responses.
      */
     public async collectMaxNonces() {
         let waiters = [];
@@ -197,7 +234,9 @@ export class RegistrationSession {
     /** Extra Utility Methods */
 
     /**
-     * Get registration information from the RIS page.
+     * Retrieves registration information from the RIS page.
+     * @param prevent_throw_on_parse_error {boolean} [optional] Set to true to prevent throwing errors when parsing registration times.
+     * @returns {Promise<ReturnType<typeof this['getRIS']>>} A promise containing registration information, including schedule and bars status.
      */
     public async getRIS(prevent_throw_on_parse_error?: boolean) {
         let res = await this._fetch( this.ut_direct_url + 'registrar/ris.WBX', {
@@ -263,6 +302,7 @@ export class RegistrationSession {
 
     /**
      * Get class listing from the class listing page.
+     * @returns {Promise<any[]>} - A promise resolving to an array of class listings.
      */
     public async getClassListing() {
         let res = await this._fetch(this.ut_direct_url + 'registration/classlist.WBX?sem=' + this.ccyys, {});
@@ -281,6 +321,11 @@ export class RegistrationSession {
         return rows;
     }
 
+    /**
+     * Take a nonce from the `new_nonces` array, or throw an error if it's empty.
+     * @returns {string} - A nonce.
+     * @throws {Error} - If there are no nonces left in the `new_nonces` array.
+     */
     private _take_nonce() {
         if (this.new_nonces.length == 0)
             throw new Error('Ran out of nonces!');
@@ -293,10 +338,20 @@ export class RegistrationSession {
         return this.new_nonces.shift();
     }
 
+    /**
+     * Helper function for cheerio.
+     * @param {CheerioAPI} ch - Cheerio API instance.
+     * @param {string} sel - Selector string.
+     * @returns {Array<Cheerio>} - Array of cheerio instances.
+     */
     private _ch(ch:CheerioAPI, sel:string) {
         return ch(sel).toArray().map((n)=>{return cheerio.load(n)})
     }
 
+    /**
+     * Parse the given cookie string and add it to the `cookies` map.
+     * @param {string} cs - Cookie string.
+     */
     private _parse_cookie_string(cs: string) {
         let seperated_cs = cs.split(', ');
         for (let single_cs of seperated_cs) {
@@ -306,10 +361,20 @@ export class RegistrationSession {
         }
     }
 
+    /**
+     * Generate a cookie string from the `cookies` map.
+     * @returns {string} - The generated cookie string.
+     */
     private _make_cookie_string() {
         return Array.from(this.cookies).map(c=>c[0]+'='+c[1]).join('; ');
     }
 
+    /**
+     * Parse the RIS date range string.
+     * @param {string} s - RIS date range string.
+     * @returns {Array<{start: Date, stop: Date}>} - An array of start and stop date objects.
+     * @throws {Error} - If the given string cannot be parsed correctly.
+     */
     private _parse_ris_daterange(s:string) {
             if (s.length == 0) { return []; }
             let _seperated = s.split(',');
@@ -370,6 +435,13 @@ export class RegistrationSession {
             return times;
     }
 
+    /**
+     * Fetch a resource using the provided URL and options.
+     * @param {Parameters<typeof fetch>[0]} url - The URL to fetch.
+     * @param {Parameters<typeof fetch>[1]} opts - Fetch options.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} - A promise resolving to an object containing the response, body (if any), and Cheerio DOM (if any).
+     * @throws {Error} - If the response status code is not 200.
+     */
     async _fetch(url: Parameters<typeof fetch>[0], opts: Parameters<typeof fetch>[1]): Promise<{r:Response, body?:string, dom?: CheerioAPI}> {
         opts.headers = opts.headers ? opts.headers : {};
         (opts.headers as any)['cookie'] = this._make_cookie_string();
@@ -394,6 +466,16 @@ export class RegistrationSession {
         return { r };
     }
 
+     /**
+     * Send a request to the specified endpoint with the given parameters.
+     * @param {Request.Code} code - The request code.
+     * @param {'POST' | 'GET'} method - The HTTP method to use.
+     * @param {'form' | 'url'} param_mode - Parameter mode, either 'form' or 'url'.
+     * @param {Request.Endpoint} ep - The endpoint to send the request to.
+     * @param {Request.Params} params - The request parameters.
+     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} - A promise resolving to an object containing the response, body (if any), and Cheerio DOM (if any).
+     * @throws {Error} - If the response contains an error message.
+     */
     private async _req(code: Request.Code, method: 'POST' | 'GET', param_mode: 'form' | 'url', ep: Request.Endpoint, params: Request.Params) {
         let managed_params: Request.ManagedParams = {
             s_ccyys: this.ccyys,
