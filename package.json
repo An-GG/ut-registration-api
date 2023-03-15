@@ -8,7 +8,7 @@
   },
   "name": "ut-registration-api",
   "description": "- Uses get and post requests with query params, works using forms basically no scripts   - `searchCheck()` runs on main form submit, changes endpoint depending on command   - `validateForm()` only on acknowledgement page, checks to see if box checked -",
-  "version": "1.1.2",
+  "version": "1.9",
   "main": "dist/api.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
