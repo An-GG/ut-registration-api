@@ -1,7 +1,8 @@
 import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 import cheerio, { CheerioAPI } from 'cheerio';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { chromeGUIAuthentication } from 'ut-auth-utils';
 
 /**
  * Class representing an active browser session connected to UT Direct, a web application used for course registration at the University of Texas at Austin.
@@ -54,6 +55,28 @@ export class RegistrationSession {
             let old_cookies = JSON.parse(readFileSync(this.cookie_file).toString()) as Request.Cookie[]
             old_cookies.forEach(c=>this.cookies.set(c.name, c.value));
         }
+    }
+
+    /**
+     * Login to UT Direct through a graphical Chromium window to get session cookies.
+     * If your cookies are recent, you shouldn't have to do anything.
+     */
+    public async login() {
+        let cookie_set = Array.from(this.cookies).map((v) => { return { name:v[0], value:v[1] }});
+        let new_cookies = await chromeGUIAuthentication(this.ut_direct_url, cookie_set);
+        new_cookies.forEach(c=>this.cookies.set(c.name, c.value));
+    }
+
+    /**
+     * Explicitly logout - meaning delete this sessions cookies, AND delete the cookie file.
+     * 
+     * Normally you shouldn't call this, just exit from your script (this will persist your cookies). 
+     * Call this if you want to deauthorize the current session and force a full sign-in the next time 
+     * you login().
+     */
+    public async logout() {
+        this.cookies = new Map();
+        rmSync(this.cookie_file);
     }
 
     /**
