@@ -96,6 +96,8 @@ Class representing an active browser session connected to UT Direct, a web appli
 - [getClassListing](README.md#getclasslisting)
 - [getRIS](README.md#getris)
 - [joinWaitlist](README.md#joinwaitlist)
+- [login](README.md#login)
+- [logout](README.md#logout)
 - [searchForAnotherSection](README.md#searchforanothersection)
 - [singleTimeAcknowledgement](README.md#singletimeacknowledgement)
 - [swapCourses](README.md#swapcourses)
@@ -116,11 +118,11 @@ Create a new registration session.
 | `year` | `number` | Year of the semester. |
 | `semester` | [`Semester`](../modules/Request.md#semester) | Semester (Spring, Summer, or Fall). |
 | `init_cookies?` | [`Cookie`](../modules/Request.md#cookie)[] | Setup these cookies in the session. |
-| `opts?` | `Partial`<[`RegistrationSessionOptions`](../modules.md#registrationsessionoptions)\> | - |
+| `opts?` | `Partial`<[`RegistrationSessionOptions`](../modules.md#registrationsessionoptions)\> | Optional configuration options. `cookie_storage_dir` - specify a file to store and load cookies from, so that cookies can persist between program runs. Default is `/tmp/utreg-cookiejar.json` configure max/min stored nonce count |
 
 #### Defined in
 
-[api.ts:38](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L38)
+[api.ts:35](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L35)
 
 ## Methods
 
@@ -134,7 +136,7 @@ Adds a course to your schedule.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `unique_course_id` | `number` | The unique course identifier. |
+| `unique_course_id` | `number` | {number} The unique course identifier. |
 
 #### Returns
 
@@ -144,7 +146,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:92](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L92)
+[api.ts:105](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L105)
 
 ___
 
@@ -163,7 +165,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:64](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L64)
+[api.ts:77](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L77)
 
 ___
 
@@ -181,7 +183,7 @@ A set of promises containing the server responses.
 
 #### Defined in
 
-[api.ts:237](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L237)
+[api.ts:250](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L250)
 
 ___
 
@@ -191,7 +193,7 @@ ___
 
 This method fetches a single nonce and appends it to the list of available nonces.
 
-A unique server-generated nonce is required alongside each request, which can only be used once. These are normally embedded in the HTML form content
+A unique server-generated nonce is required alongside each request, which can only be used once. These are normally embedded in the HTML form content 
 returned after every request, but acquiring a nonce this way makes things unnecessarily slow because we have to wait for the server to respond.
 Fortunately, we can collect many nonces before making a single request from the chooseSemester.WBX page and use them whenever we want.
 
@@ -203,7 +205,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:223](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L223)
+[api.ts:236](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L236)
 
 ___
 
@@ -217,7 +219,7 @@ Drops a course from your schedule.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `unique_course_id` | `number` | The unique course identifier. |
+| `unique_course_id` | `number` | {number} The unique course identifier. |
 
 #### Returns
 
@@ -227,7 +229,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:106](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L106)
+[api.ts:119](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L119)
 
 ___
 
@@ -245,7 +247,7 @@ Get class listing from the class listing page.
 
 #### Defined in
 
-[api.ts:319](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L319)
+[api.ts:332](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L332)
 
 ___
 
@@ -259,7 +261,7 @@ Retrieves registration information from the RIS page.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `prevent_throw_on_parse_error?` | `boolean` | [optional] Set to true to prevent throwing errors when parsing registration times. |
+| `prevent_throw_on_parse_error?` | `boolean` | {boolean} [optional] Set to true to prevent throwing errors when parsing registration times. |
 
 #### Returns
 
@@ -269,7 +271,7 @@ A promise containing registration information, including schedule and bars statu
 
 #### Defined in
 
-[api.ts:253](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L253)
+[api.ts:266](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L266)
 
 ___
 
@@ -283,8 +285,8 @@ Joins the waitlist for a course.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `unique_course_id` | `number` | The unique course identifier. |
-| `optional_swap_course_id?` | `number` | [optional] The unique course identifier of the course to be swapped if a seat becomes available. |
+| `unique_course_id` | `number` | {number} The unique course identifier. |
+| `optional_swap_course_id?` | `number` | {number} [optional] The unique course identifier of the course to be swapped if a seat becomes available. |
 
 #### Returns
 
@@ -294,13 +296,50 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:137](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L137)
+[api.ts:150](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L150)
+
+___
+
+### login
+
+▸ **login**(): `Promise`<`void`\>
+
+Login to UT Direct through a graphical Chromium window to get session cookies.
+If your cookies are recent, you shouldn't have to do anything.
+
+#### Returns
+
+`Promise`<`void`\>
+
+#### Defined in
+
+[api.ts:56](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L56)
+
+___
+
+### logout
+
+▸ **logout**(): `Promise`<`void`\>
+
+Explicitly logout - meaning delete this sessions cookies, AND delete the cookie file.
+
+Normally you shouldn't call this, just exit from your script (this will persist your cookies). 
+Call this if you want to deauthorize the current session and force a full sign-in the next time 
+you login().
+
+#### Returns
+
+`Promise`<`void`\>
+
+#### Defined in
+
+[api.ts:68](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L68)
 
 ___
 
 ### searchForAnotherSection
 
-▸ **searchForAnotherSection**(`unique_course_id`): `Promise`<{ [unique_id: string]: `any`[];  }\>
+▸ **searchForAnotherSection**(`unique_course_id`): `Promise`<{ `[unique_id: string]`: `any`[];  }\>
 
 Searches for other open sections of the same course.
 aka 'SEARCH for another section of the same course'
@@ -310,17 +349,17 @@ Gets all other sections that are open (not waitlisted) for a given course_id. Wi
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `unique_course_id` | `number` | The unique course identifier. |
+| `unique_course_id` | `number` | {number} The unique course identifier. |
 
 #### Returns
 
-`Promise`<{ [unique_id: string]: `any`[];  }\>
+`Promise`<{ `[unique_id: string]`: `any`[];  }\>
 
 A promise containing the server response.
 
 #### Defined in
 
-[api.ts:172](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L172)
+[api.ts:185](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L185)
 
 ___
 
@@ -328,12 +367,12 @@ ___
 
 ▸ **singleTimeAcknowledgement**(): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
-Submits the acknowledgment form (that shows up only the first time you enter registration each semester)
+Submits the acknowledgment form (that shows up only the first time you enter registration each semester) 
 stating that 'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
 
 Submitting this form is technically the only thing you need to wait on before requesting course add/drops.
 
-I have a vague feeling that the server is probably too lazy to confirm you submitted this form, and that you don't need to
+I have a vague feeling that the server is probably too lazy to confirm you submitted this form, and that you don't need to 
 actually submit this before making real requests, but I've never tried doing that.   `¯\_(ツ)_/¯`
 
 #### Returns
@@ -344,7 +383,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:78](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L78)
+[api.ts:91](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L91)
 
 ___
 
@@ -359,8 +398,8 @@ aka 'DROP DEPENDENT UPON successfully ADDING'.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `drop_unique_id` | `number` | The unique course identifier of the course to be dropped. |
-| `add_unique_id` | `number` | The unique course identifier of the course to be added. |
+| `drop_unique_id` | `number` | {number} The unique course identifier of the course to be dropped. |
+| `add_unique_id` | `number` | {number} The unique course identifier of the course to be added. |
 
 #### Returns
 
@@ -370,7 +409,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:122](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L122)
+[api.ts:135](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L135)
 
 ___
 
@@ -385,7 +424,7 @@ aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDIT basis'
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `unique_course_id` | `number` | The unique course identifier. |
+| `unique_course_id` | `number` | {number} The unique course identifier. |
 
 #### Returns
 
@@ -395,4 +434,4 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:154](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L154)
+[api.ts:167](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L167)

@@ -1,14 +1,10 @@
 {
-  "devDependencies": {
-    "@types/node": "^17.0.8",
-    "typedoc": "^0.22.10",
-    "typedoc-plugin-markdown": "^3.11.11"
-  },
   "dependencies": {
-    "@types/node-fetch": "^2.5.12",
-    "cheerio": "^1.0.0-rc.10",
-    "node-fetch": "^2.6.7",
-    "ut-auth-utils": "^2.0.1"
+    "cheerio": "^1.0.0-rc.12",
+    "node-fetch": "^3.3.1",
+    "typedoc": "^0.23.26",
+    "typedoc-plugin-markdown": "^3.14.0",
+    "ut-auth-utils": "^2.0.2"
   },
   "name": "ut-registration-api",
   "description": "- Uses get and post requests with query params, works using forms basically no scripts   - `searchCheck()` runs on main form submit, changes endpoint depending on command   - `validateForm()` only on acknowledgement page, checks to see if box checked -",
@@ -16,7 +12,7 @@
   "main": "dist/api.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "rm -rf dist && tsc --build tsconfig.json",
+    "prepare": "rm -rf dist && npx tsc --build tsconfig.json",
     "docs": "npx typedoc --excludeInternal --excludePrivate --plugin typedoc-plugin-markdown --out docs src/api.ts && cat docs/classes/RegistrationSession.md | sed 's/RegistrationSession.md/README.md/g' > docs/.README.docs.md && cat .README.header.md > README.md && tail -n +2 docs/.README.docs.md >> README.md && rm -rf docs"
   },
   "repository": {
