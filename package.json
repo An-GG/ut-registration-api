@@ -15,7 +15,8 @@
   "main": "dist/api.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "rm -rf dist && tsc --build tsconfig.json"
+    "prepare": "rm -rf dist && tsc --build tsconfig.json",
+    "docs": "npx typedoc --excludeInternal --excludePrivate --plugin typedoc-plugin-markdown --out docs src/api.ts && cat .README.header.md > README.md && tail -n +2 docs/classes/RegistrationSession.md >> README.md && rm -rf docs"
   },
   "repository": {
     "type": "git",

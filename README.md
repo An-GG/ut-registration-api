@@ -74,71 +74,77 @@ await session.singleTimeAcknowledgement();
 await session.addCourse(11111);
 ```
 
-## API
+# API
 
-### Class: RegistrationSession
+# Class: RegistrationSession
 
+Class representing an active browser session connected to UT Direct, a web application used for course registration at the University of Texas at Austin.
 
-#### Constructors
+## Table of contents
 
-- [constructor](#constructor)
+### Constructors
 
-#### Registration Methods
-- [addCourse](#addcourse)
-- [beginRegistration](#beginregistration)
-- [dropCourse](#dropcourse)
-- [joinWaitlist](#joinwaitlist)
-- [searchForAnotherSection](#searchforanothersection)
-- [singleTimeAcknowledgement](#singletimeacknowledgement)
-- [swapCourses](#swapcourses)
-- [toggleCourseGradingBasis](#togglecoursegradingbasis)
+- [constructor](RegistrationSession.md#constructor)
 
-#### Methods
-- [collectMaxNonces](#collectmaxnonces)
-- [collectNonce](#collectnonce)
-- [getClassListing](#getclasslisting)
-- [getRIS](#getris)
+### Methods
+
+- [addCourse](RegistrationSession.md#addcourse)
+- [beginRegistration](RegistrationSession.md#beginregistration)
+- [collectMaxNonces](RegistrationSession.md#collectmaxnonces)
+- [collectNonce](RegistrationSession.md#collectnonce)
+- [dropCourse](RegistrationSession.md#dropcourse)
+- [getClassListing](RegistrationSession.md#getclasslisting)
+- [getRIS](RegistrationSession.md#getris)
+- [joinWaitlist](RegistrationSession.md#joinwaitlist)
+- [searchForAnotherSection](RegistrationSession.md#searchforanothersection)
+- [singleTimeAcknowledgement](RegistrationSession.md#singletimeacknowledgement)
+- [swapCourses](RegistrationSession.md#swapcourses)
+- [toggleCourseGradingBasis](RegistrationSession.md#togglecoursegradingbasis)
+
+## Constructors
 
 ### constructor
 
 • **new RegistrationSession**(`year`, `semester`, `init_cookies?`, `opts?`)
 
+Create a new registration session.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `year` | `number` |
-| `semester` | ``"Spring"`` \| ``"Summer"`` \| ``"Fall"`` |
-| `init_cookies?` | `Map`<`string`, `string`\> |
-| `opts?` | `Partial`<{ `max_nonce_count`: `number` ; `min_nonce_count`: `number`  }\> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `year` | `number` | Year of the semester. |
+| `semester` | [`Semester`](../modules/Request.md#semester) | Semester (Spring, Summer, or Fall). |
+| `init_cookies?` | [`Cookie`](../modules/Request.md#cookie)[] | Setup these cookies in the session. |
+| `opts?` | `Partial`<[`RegistrationSessionOptions`](../modules.md#registrationsessionoptions)\> | - |
 
 #### Defined in
 
-[api.ts:17](https://github.com/An-GG/ut-registration-api/blob/master/src/api.ts#L17)
+[api.ts:38](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L38)
 
-### Methods
-
-___
+## Methods
 
 ### addCourse
 
 ▸ **addCourse**(`unique_course_id`): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
-Add course.
+Adds a course to your schedule.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `unique_course_id` | `number` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `unique_course_id` | `number` | The unique course identifier. |
 
 #### Returns
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
+>} A promise containing the server response.
+
 #### Defined in
 
-[api.ts:60](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L60)
+[api.ts:92](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L92)
 
 ___
 
@@ -146,16 +152,18 @@ ___
 
 ▸ **beginRegistration**(): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
-Equivalent to choosing the target semester among the available semesters at 'registration/chooseSemester.WBX'
-Not really required, you can call the other methods without calling this. Useful to get current state.
+Begins the registration process by selecting the target semester among the available semesters.
+Not required to call, but useful for getting the current state.
 
 #### Returns
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
+>} A promise containing the server response.
+
 #### Defined in
 
-[api.ts:40](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L40)
+[api.ts:64](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L64)
 
 ___
 
@@ -169,9 +177,11 @@ Collects many nonces (as many as max_nonce_count) simultaneously.
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }[]\>
 
+>}[] A set of promises containing the server responses.
+
 #### Defined in
 
-[api.ts:188](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L188)
+[api.ts:237](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L237)
 
 ___
 
@@ -179,19 +189,21 @@ ___
 
 ▸ **collectNonce**(): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
+This method fetches a single nonce and appends it to the list of available nonces.
+
 A unique server-generated nonce is required alongside each request, which can only be used once. These are normally embedded in the HTML form content
 returned after every request, but acquiring a nonce this way makes things unnecessarily slow because we have to wait for the server to respond.
 Fortunately, we can collect many nonces before making a single request from the chooseSemester.WBX page and use them whenever we want.
-
-This method fetches a single nonce and appends it to the list of available nonces.
 
 #### Returns
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
+>} A promise containing the server response.
+
 #### Defined in
 
-[api.ts:175](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L175)
+[api.ts:223](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L223)
 
 ___
 
@@ -199,21 +211,23 @@ ___
 
 ▸ **dropCourse**(`unique_course_id`): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
-Drop course.
+Drops a course from your schedule.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `unique_course_id` | `number` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `unique_course_id` | `number` | The unique course identifier. |
 
 #### Returns
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
+>} A promise containing the server response.
+
 #### Defined in
 
-[api.ts:72](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L72)
+[api.ts:106](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L106)
 
 ___
 
@@ -227,73 +241,60 @@ Get class listing from the class listing page.
 
 `Promise`<{}[]\>
 
+- A promise resolving to an array of class listings.
+
 #### Defined in
 
-[api.ts:267](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L267)
+[api.ts:319](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L319)
 
 ___
 
 ### getRIS
 
-▸ **getRIS**(`prevent_throw_on_parse_error?`): Promise>
+▸ **getRIS**(`prevent_throw_on_parse_error?`): `Promise`<{ `_raw_ris_fetch_result`: { `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  } = res; `bars`: { `_raw_elements`: `Cheerio`<`Element`\> = bars\_elements; `_raw_text`: `string` ; `bars_cleared`: `boolean`  } ; `encountered_errors`: `Error`[] ; `schedule`: { `_raw_elements`: `Cheerio`<`Element`\> = schedule\_elements; `_raw_times`: `string`[] = times\_raw; `times`: { `start`: `Date` ; `stop`: `Date`  }[] = times }  }\>
 
-Get registration information from the RIS page. If `prevent_throw_on_parse_error` is true, method will return even if there were parsing errors. Use `encountered_errors` to detect if returned values may be inaccurate. 
+Retrieves registration information from the RIS page.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `prevent_throw_on_parse_error?` | `boolean` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `prevent_throw_on_parse_error?` | `boolean` | [optional] Set to true to prevent throwing errors when parsing registration times. |
 
 #### Returns
-```ts
-Promise<{
-    bars: {
-        bars_cleared: boolean;
-        _raw_elements: Cheerio<Element>;
-        _raw_text: string;
-    };
-    schedule: {
-        times: {
-            start: Date;
-            stop: Date;
-        }[];
-        _raw_elements: Cheerio<Element>;
-        _raw_times: string[];
-    };
-    encountered_errors: Error[];
-    _raw_ris_fetch_result: {
-        body?: string
-        dom?: CheerioAPI
-        r: Response
-    }
-}>
-```
+
+`Promise`<{ `_raw_ris_fetch_result`: { `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  } = res; `bars`: { `_raw_elements`: `Cheerio`<`Element`\> = bars\_elements; `_raw_text`: `string` ; `bars_cleared`: `boolean`  } ; `encountered_errors`: `Error`[] ; `schedule`: { `_raw_elements`: `Cheerio`<`Element`\> = schedule\_elements; `_raw_times`: `string`[] = times\_raw; `times`: { `start`: `Date` ; `stop`: `Date`  }[] = times }  }\>
+
+A promise containing registration information, including schedule and bars status.
+
 #### Defined in
 
-[api.ts:202](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L202)
+[api.ts:253](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L253)
+
 ___
 
 ### joinWaitlist
 
 ▸ **joinWaitlist**(`unique_course_id`, `optional_swap_course_id?`): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
-Join course waitlist.
+Joins the waitlist for a course.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `unique_course_id` | `number` |
-| `optional_swap_course_id?` | `number` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `unique_course_id` | `number` | The unique course identifier. |
+| `optional_swap_course_id?` | `number` | [optional] The unique course identifier of the course to be swapped if a seat becomes available. |
 
 #### Returns
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
+>} A promise containing the server response.
+
 #### Defined in
 
-[api.ts:96](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L96)
+[api.ts:137](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L137)
 
 ___
 
@@ -301,22 +302,25 @@ ___
 
 ▸ **searchForAnotherSection**(`unique_course_id`): `Promise`<{ [unique_id: string]: `any`[];  }\>
 
-Get all other sections that are open (not waitlisted) for a given course_id. Will never return the given course_id as a result, even if the given course is open.
-'SEARCH for another section of the same course'
+Searches for other open sections of the same course.
+aka 'SEARCH for another section of the same course'
+Gets all other sections that are open (not waitlisted) for a given course_id. Will never return the given course_id as a result, even if the given course is open.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `unique_course_id` | `number` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `unique_course_id` | `number` | The unique course identifier. |
 
 #### Returns
 
 `Promise`<{ [unique_id: string]: `any`[];  }\>
 
+>} A promise containing the server response.
+
 #### Defined in
 
-[api.ts:125](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L125)
+[api.ts:172](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L172)
 
 ___
 
@@ -324,16 +328,23 @@ ___
 
 ▸ **singleTimeAcknowledgement**(): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
-Submits the form at 'registration/confirmEmailAddress.WBX' with the acknowledge box ticked.
-'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
+Submits the acknowledgment form (that shows up only the first time you enter registration each semester)
+stating that 'I acknowledge that the courses for which I am registering are consistent with my degree plan.'
+
+Submitting this form is technically the only thing you need to wait on before requesting course add/drops.
+
+I have a vague feeling that the server is probably too lazy to confirm you submitted this form, and that you don't need to
+actually submit this before making real requests, but I've never tried doing that.   ¯\\_(ツ)_/¯
 
 #### Returns
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
+>} A promise containing the server response.
+
 #### Defined in
 
-[api.ts:48](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L48)
+[api.ts:78](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L78)
 
 ___
 
@@ -341,22 +352,25 @@ ___
 
 ▸ **swapCourses**(`drop_unique_id`, `add_unique_id`): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
-Swap courses, aka 'DROP DEPENDENT UPON successfully ADDING'.
+Swaps courses with the condition of dropping one course only if adding the other is successful.
+aka 'DROP DEPENDENT UPON successfully ADDING'.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `drop_unique_id` | `number` |
-| `add_unique_id` | `number` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `drop_unique_id` | `number` | The unique course identifier of the course to be dropped. |
+| `add_unique_id` | `number` | The unique course identifier of the course to be added. |
 
 #### Returns
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
+>} A promise containing the server response.
+
 #### Defined in
 
-[api.ts:84](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L84)
+[api.ts:122](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L122)
 
 ___
 
@@ -364,18 +378,21 @@ ___
 
 ▸ **toggleCourseGradingBasis**(`unique_course_id`): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
-Toggle course grading basis, aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDIT basis'
+Toggles the grading basis for a course (e.g., change between Pass/Fail and Credit/No Credit).
+aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDIT basis'
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `unique_course_id` | `number` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `unique_course_id` | `number` | The unique course identifier. |
 
 #### Returns
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
+>} A promise containing the server response.
+
 #### Defined in
 
-[api.ts:110](https://github.com/An-GG/ut-registration-api/blob/f6a960f/src/api.ts#L110)
+[api.ts:154](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L154)

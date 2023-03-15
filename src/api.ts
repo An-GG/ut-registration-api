@@ -32,7 +32,7 @@ export class RegistrationSession {
      * @param {Request.Semester} semester - Semester (Spring, Summer, or Fall).
      * @param {Request.Cookie[]} init_cookies - Setup these cookies in the session.
      * @param {RegistrationSessionOptions} [opts] - Optional configuration options.
-     *  - `cookie_storage_dir` - specify a file to store and load cookies from, so that cookies can persist between program runs. Default is `/tmp/utreg-cookiejar`
+     *  - `cookie_storage_dir` - specify a file to store and load cookies from, so that cookies can persist between program runs. Default is `/tmp/utreg-cookiejar.json`
      *  - configure max/min stored nonce count
      */
     constructor(year: number, semester: Request.Semester, init_cookies?: Request.Cookie[], opts?:Partial<RegistrationSessionOptions>) {
@@ -337,6 +337,7 @@ export class RegistrationSession {
      * Take a nonce from the `new_nonces` array, or throw an error if it's empty.
      * @returns {string} - A nonce.
      * @throws {Error} - If there are no nonces left in the `new_nonces` array.
+     * @internal
      */
     private _take_nonce() {
         if (this.new_nonces.length == 0)
@@ -355,6 +356,7 @@ export class RegistrationSession {
      * @param {CheerioAPI} ch - Cheerio API instance.
      * @param {string} sel - Selector string.
      * @returns {Array<Cheerio>} - Array of cheerio instances.
+     * @internal
      */
     private _ch(ch:CheerioAPI, sel:string) {
         return ch(sel).toArray().map((n)=>{return cheerio.load(n)})
@@ -363,6 +365,7 @@ export class RegistrationSession {
     /**
      * Parse the given cookie string and add it to the `cookies` map.
      * @param {string} cs - Cookie string.
+     * @internal
      */
     private _parse_cookie_string(cs: string) {
         let seperated_cs = cs.split(', ');
@@ -377,6 +380,7 @@ export class RegistrationSession {
     /**
      * Generate a cookie string from the `cookies` map.
      * @returns {string} - The generated cookie string.
+     * @internal
      */
     private _make_cookie_string() {
         return Array.from(this.cookies).map(c=>c[0]+'='+c[1]).join('; ');
@@ -387,6 +391,7 @@ export class RegistrationSession {
      * @param {string} s - RIS date range string.
      * @returns {Array<{start: Date, stop: Date}>} - An array of start and stop date objects.
      * @throws {Error} - If the given string cannot be parsed correctly.
+     * @internal
      */
     private _parse_ris_daterange(s:string) {
             if (s.length == 0) { return []; }
@@ -454,6 +459,7 @@ export class RegistrationSession {
      * @param {Parameters<typeof fetch>[1]} opts - Fetch options.
      * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} - A promise resolving to an object containing the response, body (if any), and Cheerio DOM (if any).
      * @throws {Error} - If the response status code is not 200.
+     * @internal
      */
     async _fetch(url: Parameters<typeof fetch>[0], opts: Parameters<typeof fetch>[1]): Promise<{r:Response, body?:string, dom?: CheerioAPI}> {
         opts.headers = opts.headers ? opts.headers : {};
@@ -488,6 +494,7 @@ export class RegistrationSession {
      * @param {Request.Params} params - The request parameters.
      * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} - A promise resolving to an object containing the response, body (if any), and Cheerio DOM (if any).
      * @throws {Error} - If the response contains an error message.
+     * @internal
      */
     private async _req(code: Request.Code, method: 'POST' | 'GET', param_mode: 'form' | 'url', ep: Request.Endpoint, params: Request.Params) {
         let managed_params: Request.ManagedParams = {
