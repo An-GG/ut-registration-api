@@ -84,22 +84,22 @@ Class representing an active browser session connected to UT Direct, a web appli
 
 ### Constructors
 
-- [constructor](RegistrationSession.md#constructor)
+- [constructor](README.md#constructor)
 
 ### Methods
 
-- [addCourse](RegistrationSession.md#addcourse)
-- [beginRegistration](RegistrationSession.md#beginregistration)
-- [collectMaxNonces](RegistrationSession.md#collectmaxnonces)
-- [collectNonce](RegistrationSession.md#collectnonce)
-- [dropCourse](RegistrationSession.md#dropcourse)
-- [getClassListing](RegistrationSession.md#getclasslisting)
-- [getRIS](RegistrationSession.md#getris)
-- [joinWaitlist](RegistrationSession.md#joinwaitlist)
-- [searchForAnotherSection](RegistrationSession.md#searchforanothersection)
-- [singleTimeAcknowledgement](RegistrationSession.md#singletimeacknowledgement)
-- [swapCourses](RegistrationSession.md#swapcourses)
-- [toggleCourseGradingBasis](RegistrationSession.md#togglecoursegradingbasis)
+- [addCourse](README.md#addcourse)
+- [beginRegistration](README.md#beginregistration)
+- [collectMaxNonces](README.md#collectmaxnonces)
+- [collectNonce](README.md#collectnonce)
+- [dropCourse](README.md#dropcourse)
+- [getClassListing](README.md#getclasslisting)
+- [getRIS](README.md#getris)
+- [joinWaitlist](README.md#joinwaitlist)
+- [searchForAnotherSection](README.md#searchforanothersection)
+- [singleTimeAcknowledgement](README.md#singletimeacknowledgement)
+- [swapCourses](README.md#swapcourses)
+- [toggleCourseGradingBasis](README.md#togglecoursegradingbasis)
 
 ## Constructors
 
@@ -120,7 +120,7 @@ Create a new registration session.
 
 #### Defined in
 
-[api.ts:38](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L38)
+[api.ts:38](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L38)
 
 ## Methods
 
@@ -140,11 +140,11 @@ Adds a course to your schedule.
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
->} A promise containing the server response.
+A promise containing the server response.
 
 #### Defined in
 
-[api.ts:92](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L92)
+[api.ts:92](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L92)
 
 ___
 
@@ -159,11 +159,11 @@ Not required to call, but useful for getting the current state.
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
->} A promise containing the server response.
+A promise containing the server response.
 
 #### Defined in
 
-[api.ts:64](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L64)
+[api.ts:64](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L64)
 
 ___
 
@@ -177,11 +177,11 @@ Collects many nonces (as many as max_nonce_count) simultaneously.
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }[]\>
 
->}[] A set of promises containing the server responses.
+A set of promises containing the server responses.
 
 #### Defined in
 
-[api.ts:237](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L237)
+[api.ts:237](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L237)
 
 ___
 
@@ -199,11 +199,11 @@ Fortunately, we can collect many nonces before making a single request from the 
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
->} A promise containing the server response.
+A promise containing the server response.
 
 #### Defined in
 
-[api.ts:223](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L223)
+[api.ts:223](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L223)
 
 ___
 
@@ -223,11 +223,11 @@ Drops a course from your schedule.
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
->} A promise containing the server response.
+A promise containing the server response.
 
 #### Defined in
 
-[api.ts:106](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L106)
+[api.ts:106](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L106)
 
 ___
 
@@ -245,7 +245,7 @@ Get class listing from the class listing page.
 
 #### Defined in
 
-[api.ts:319](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L319)
+[api.ts:319](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L319)
 
 ___
 
@@ -269,7 +269,7 @@ A promise containing registration information, including schedule and bars statu
 
 #### Defined in
 
-[api.ts:253](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L253)
+[api.ts:253](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L253)
 
 ___
 
@@ -290,11 +290,11 @@ Joins the waitlist for a course.
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
->} A promise containing the server response.
+A promise containing the server response.
 
 #### Defined in
 
-[api.ts:137](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L137)
+[api.ts:137](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L137)
 
 ___
 
@@ -316,11 +316,11 @@ Gets all other sections that are open (not waitlisted) for a given course_id. Wi
 
 `Promise`<{ [unique_id: string]: `any`[];  }\>
 
->} A promise containing the server response.
+A promise containing the server response.
 
 #### Defined in
 
-[api.ts:172](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L172)
+[api.ts:172](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L172)
 
 ___
 
@@ -334,17 +334,17 @@ stating that 'I acknowledge that the courses for which I am registering are cons
 Submitting this form is technically the only thing you need to wait on before requesting course add/drops.
 
 I have a vague feeling that the server is probably too lazy to confirm you submitted this form, and that you don't need to
-actually submit this before making real requests, but I've never tried doing that.   ¯\\_(ツ)_/¯
+actually submit this before making real requests, but I've never tried doing that.   `¯\_(ツ)_/¯`
 
 #### Returns
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
->} A promise containing the server response.
+A promise containing the server response.
 
 #### Defined in
 
-[api.ts:78](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L78)
+[api.ts:78](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L78)
 
 ___
 
@@ -366,11 +366,11 @@ aka 'DROP DEPENDENT UPON successfully ADDING'.
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
->} A promise containing the server response.
+A promise containing the server response.
 
 #### Defined in
 
-[api.ts:122](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L122)
+[api.ts:122](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L122)
 
 ___
 
@@ -391,8 +391,8 @@ aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDIT basis'
 
 `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }\>
 
->} A promise containing the server response.
+A promise containing the server response.
 
 #### Defined in
 
-[api.ts:154](https://github.com/An-GG/ut-registration-api/blob/3fa4894/src/api.ts#L154)
+[api.ts:154](https://github.com/An-GG/ut-registration-api/blob/50f2226/src/api.ts#L154)
