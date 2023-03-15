@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 import cheerio, { CheerioAPI } from 'cheerio';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { chromeGUIAuthentication } from 'ut-auth-utils';
 
 /**
@@ -17,9 +16,6 @@ export class RegistrationSession {
     private max_nonce_count = 20;
     private new_nonces: string[] = [];
     private used_nonces_count: number = 0;
-
-    private cookie_file = "/tmp/utreg-cookiejar.json";
-    private disable_cookie_file = false;
 
     private sem_codes: {[k in Request.Semester]:number}  = { 'Spring': 2, 'Summer': 6, 'Fall': 9 }
     private year: number;
@@ -51,10 +47,6 @@ export class RegistrationSession {
         if (init_cookies) {
             init_cookies.forEach(c=>this.cookies.set(c.name, c.value));
         }
-        if (existsSync(this.cookie_file) && !this.disable_cookie_file) {
-            let old_cookies = JSON.parse(readFileSync(this.cookie_file).toString()) as [string, string][];
-            old_cookies.forEach((v)=>this.cookies.set(v[0], v[1]));
-        }
     }
 
     /**
@@ -62,10 +54,8 @@ export class RegistrationSession {
      * If your cookies are recent, you shouldn't have to do anything.
      */
     public async login() {
-        let cookie_set = Array.from(this.cookies).map((v) => { return { name:v[0], value:v[1] }});
-        let new_cookies = await chromeGUIAuthentication(this.ut_direct_url, cookie_set);
+        let new_cookies = await chromeGUIAuthentication(this.ut_direct_url);
         new_cookies.forEach(c=>this.cookies.set(c.name, c.value));
-        if (!this.disable_cookie_file) { writeFileSync(this.cookie_file, JSON.stringify(Array.from(this.cookies))) }
     }
 
     /**
@@ -77,7 +67,6 @@ export class RegistrationSession {
      */
     public async logout() {
         this.cookies = new Map();
-        rmSync(this.cookie_file);
     }
 
     /**
@@ -397,7 +386,6 @@ export class RegistrationSession {
             let single_cs_vars = single_cs.split('; ').map((ck)=>ck.split('='));
             // first var is k/v
             this.cookies.set(single_cs_vars[0][0], single_cs_vars[0][1]);
-            if (!this.disable_cookie_file) { writeFileSync(this.cookie_file, JSON.stringify(Array.from(this.cookies))) }
         }
     }
 
@@ -619,8 +607,6 @@ export namespace Request {
 
 export type RegistrationSessionOptions = {
     max_nonce_count:number,
-    min_nonce_count:number,
-    cookie_file:string,
-    disable_cookie_false:boolean
+    min_nonce_count:number
 }
 
