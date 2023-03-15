@@ -52,8 +52,8 @@ export class RegistrationSession {
             init_cookies.forEach(c=>this.cookies.set(c.name, c.value));
         }
         if (existsSync(this.cookie_file) && !this.disable_cookie_file) {
-            let old_cookies = JSON.parse(readFileSync(this.cookie_file).toString()) as Map<string, string>;
-            old_cookies.forEach((v, k)=>this.cookies.set(k, v));
+            let old_cookies = JSON.parse(readFileSync(this.cookie_file).toString()) as [string, string][];
+            old_cookies.forEach((v)=>this.cookies.set(v[0], v[1]));
         }
     }
 
@@ -65,7 +65,7 @@ export class RegistrationSession {
         let cookie_set = Array.from(this.cookies).map((v) => { return { name:v[0], value:v[1] }});
         let new_cookies = await chromeGUIAuthentication(this.ut_direct_url, cookie_set);
         new_cookies.forEach(c=>this.cookies.set(c.name, c.value));
-        if (!this.disable_cookie_file) { writeFileSync(this.cookie_file, JSON.stringify(this.cookies)) }
+        if (!this.disable_cookie_file) { writeFileSync(this.cookie_file, JSON.stringify(Array.from(this.cookies))) }
     }
 
     /**
@@ -397,7 +397,7 @@ export class RegistrationSession {
             let single_cs_vars = single_cs.split('; ').map((ck)=>ck.split('='));
             // first var is k/v
             this.cookies.set(single_cs_vars[0][0], single_cs_vars[0][1]);
-            if (!this.disable_cookie_file) { writeFileSync(this.cookie_file, JSON.stringify(this.cookies)) }
+            if (!this.disable_cookie_file) { writeFileSync(this.cookie_file, JSON.stringify(Array.from(this.cookies))) }
         }
     }
 
