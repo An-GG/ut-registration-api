@@ -119,7 +119,7 @@ Create a new registration session.
 
 #### Defined in
 
-[api.ts:34](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L34)
+[api.ts:33](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L33)
 
 ## Methods
 
@@ -143,7 +143,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:108](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L108)
+[api.ts:106](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L106)
 
 ___
 
@@ -162,7 +162,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:80](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L80)
+[api.ts:78](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L78)
 
 ___
 
@@ -180,7 +180,7 @@ A set of promises containing the server responses.
 
 #### Defined in
 
-[api.ts:253](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L253)
+[api.ts:251](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L251)
 
 ___
 
@@ -202,7 +202,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:239](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L239)
+[api.ts:237](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L237)
 
 ___
 
@@ -226,7 +226,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:122](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L122)
+[api.ts:120](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L120)
 
 ___
 
@@ -244,15 +244,15 @@ Get class listing from the class listing page.
 
 #### Defined in
 
-[api.ts:335](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L335)
+[api.ts:374](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L374)
 
 ___
 
 ### getRIS
 
-▸ **getRIS**(`prevent_throw_on_parse_error?`): `Promise`<{ `_raw_ris_fetch_result`: { `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  } = res; `bars`: { `_raw_elements`: `Cheerio`<`Element`\> = bars\_elements; `_raw_text`: `string` ; `bars_cleared`: `boolean`  } ; `encountered_errors`: `Error`[] ; `schedule`: { `_raw_elements`: `Cheerio`<`Element`\> = schedule\_elements; `_raw_times`: `string`[] = times\_raw; `times`: { `start`: `Date` ; `stop`: `Date`  }[] = times }  }\>
+▸ **getRIS**(`prevent_throw_on_parse_error?`): `Promise`<{ `start`: `Date` ; `stop`: `Date`  }[]\>
 
-Retrieves registration information from the RIS page.
+Retrieves registration schedule.
 
 #### Parameters
 
@@ -262,13 +262,13 @@ Retrieves registration information from the RIS page.
 
 #### Returns
 
-`Promise`<{ `_raw_ris_fetch_result`: { `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  } = res; `bars`: { `_raw_elements`: `Cheerio`<`Element`\> = bars\_elements; `_raw_text`: `string` ; `bars_cleared`: `boolean`  } ; `encountered_errors`: `Error`[] ; `schedule`: { `_raw_elements`: `Cheerio`<`Element`\> = schedule\_elements; `_raw_times`: `string`[] = times\_raw; `times`: { `start`: `Date` ; `stop`: `Date`  }[] = times }  }\>
+`Promise`<{ `start`: `Date` ; `stop`: `Date`  }[]\>
 
-A promise containing registration information, including schedule and bars status.
+A promise containing an array of registration start and stop times as Date objects.
 
 #### Defined in
 
-[api.ts:269](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L269)
+[api.ts:267](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L267)
 
 ___
 
@@ -293,7 +293,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:153](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L153)
+[api.ts:151](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L151)
 
 ___
 
@@ -312,7 +312,7 @@ Additionally fills up our nonce stash by calling collectMaxNonces()
 
 #### Defined in
 
-[api.ts:57](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L57)
+[api.ts:56](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L56)
 
 ___
 
@@ -332,7 +332,7 @@ you login().
 
 #### Defined in
 
-[api.ts:70](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L70)
+[api.ts:68](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L68)
 
 ___
 
@@ -358,7 +358,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:188](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L188)
+[api.ts:186](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L186)
 
 ___
 
@@ -382,7 +382,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:94](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L94)
+[api.ts:92](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L92)
 
 ___
 
@@ -408,7 +408,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:138](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L138)
+[api.ts:136](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L136)
 
 ___
 
@@ -433,4 +433,4 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:170](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L170)
+[api.ts:168](https://github.com/An-GG/ut-registration-api/blob/e363f83/src/api.ts#L168)
