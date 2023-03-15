@@ -52,8 +52,8 @@ export class RegistrationSession {
             init_cookies.forEach(c=>this.cookies.set(c.name, c.value));
         }
         if (existsSync(this.cookie_file) && !this.disable_cookie_file) {
-            let old_cookies = JSON.parse(readFileSync(this.cookie_file).toString()) as Request.Cookie[]
-            old_cookies.forEach(c=>this.cookies.set(c.name, c.value));
+            let old_cookies = JSON.parse(readFileSync(this.cookie_file).toString()) as Map<string, string>;
+            old_cookies.forEach((v, k)=>this.cookies.set(k, v));
         }
     }
 
@@ -65,6 +65,7 @@ export class RegistrationSession {
         let cookie_set = Array.from(this.cookies).map((v) => { return { name:v[0], value:v[1] }});
         let new_cookies = await chromeGUIAuthentication(this.ut_direct_url, cookie_set);
         new_cookies.forEach(c=>this.cookies.set(c.name, c.value));
+        if (!this.disable_cookie_file) { writeFileSync(this.cookie_file, JSON.stringify(this.cookies)) }
     }
 
     /**
