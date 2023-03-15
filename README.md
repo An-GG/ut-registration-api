@@ -20,17 +20,14 @@ $ npm i ut-registration-api
 ## Example
 
 ```js
-let { chromeProgrammaticAuthentication, UT_DIRECT_URL } = require('ut-auth-utils')
 let { RegistrationSession } = require('ut-registration-api')
 
 async function main() {
     
-    let cookies_from_authenticated_session = await chromeProgrammaticAuthentication('UT EID', 'password', UT_DIRECT_URL);
-    let session = new RegistrationSession(2022, 'Spring', cookies_from_authenticated_session);
+    let session = new RegistrationSession(2023, 'Spring');
+    await session.login();
 
-    // Need to get some nonces initially.
-    // By default, this will collect 20 nonces. Nonces should repopulate after the server responds to requests.
-    await session.collectMaxNonces();
+    await session.getRIS();
 
     // Single time acknowledgement is required only once for each semester.
     // This is the page that asks you to check the box next to:
@@ -122,7 +119,7 @@ Create a new registration session.
 
 #### Defined in
 
-[api.ts:35](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L35)
+[api.ts:34](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L34)
 
 ## Methods
 
@@ -146,7 +143,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:105](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L105)
+[api.ts:108](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L108)
 
 ___
 
@@ -165,7 +162,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:77](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L77)
+[api.ts:80](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L80)
 
 ___
 
@@ -173,7 +170,7 @@ ___
 
 ▸ **collectMaxNonces**(): `Promise`<{ `body?`: `string` ; `dom?`: `CheerioAPI` ; `r`: `Response`  }[]\>
 
-Collects many nonces (as many as max_nonce_count) simultaneously.
+Collects many nonces (as many as max_nonce_count) simultaneously, and stores them for later use.
 
 #### Returns
 
@@ -183,7 +180,7 @@ A set of promises containing the server responses.
 
 #### Defined in
 
-[api.ts:250](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L250)
+[api.ts:253](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L253)
 
 ___
 
@@ -205,7 +202,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:236](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L236)
+[api.ts:239](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L239)
 
 ___
 
@@ -229,7 +226,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:119](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L119)
+[api.ts:122](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L122)
 
 ___
 
@@ -247,7 +244,7 @@ Get class listing from the class listing page.
 
 #### Defined in
 
-[api.ts:332](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L332)
+[api.ts:335](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L335)
 
 ___
 
@@ -271,7 +268,7 @@ A promise containing registration information, including schedule and bars statu
 
 #### Defined in
 
-[api.ts:266](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L266)
+[api.ts:269](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L269)
 
 ___
 
@@ -296,7 +293,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:150](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L150)
+[api.ts:153](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L153)
 
 ___
 
@@ -307,13 +304,15 @@ ___
 Login to UT Direct through a graphical Chromium window to get session cookies.
 If your cookies are recent, you shouldn't have to do anything.
 
+Additionally fills up our nonce stash by calling collectMaxNonces()
+
 #### Returns
 
 `Promise`<`void`\>
 
 #### Defined in
 
-[api.ts:56](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L56)
+[api.ts:57](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L57)
 
 ___
 
@@ -333,7 +332,7 @@ you login().
 
 #### Defined in
 
-[api.ts:68](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L68)
+[api.ts:70](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L70)
 
 ___
 
@@ -359,7 +358,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:185](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L185)
+[api.ts:188](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L188)
 
 ___
 
@@ -383,7 +382,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:91](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L91)
+[api.ts:94](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L94)
 
 ___
 
@@ -409,7 +408,7 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:135](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L135)
+[api.ts:138](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L138)
 
 ___
 
@@ -434,4 +433,4 @@ A promise containing the server response.
 
 #### Defined in
 
-[api.ts:167](https://github.com/An-GG/ut-registration-api/blob/10db03d/src/api.ts#L167)
+[api.ts:170](https://github.com/An-GG/ut-registration-api/blob/5ad3948/src/api.ts#L170)
