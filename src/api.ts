@@ -32,8 +32,8 @@ export class RegistrationSession {
      * @param {Request.Semester} semester - Semester (Spring, Summer, or Fall).
      * @param {Request.Cookie[]} init_cookies - Setup these cookies in the session.
      * @param {RegistrationSessionOptions} [opts] - Optional configuration options.
-     *  - `cookie_storage_dir` - specify a file to store and load cookies from, so that cookies can persist between program runs. Default is `/tmp/utreg-cookiejar.json`
-     *  - configure max/min stored nonce count
+     *  `cookie_storage_dir` - specify a file to store and load cookies from, so that cookies can persist between program runs. Default is `/tmp/utreg-cookiejar.json`
+     *  configure max/min stored nonce count
      */
     constructor(year: number, semester: Request.Semester, init_cookies?: Request.Cookie[], opts?:Partial<RegistrationSessionOptions>) {
         this.year = year;
@@ -59,7 +59,7 @@ export class RegistrationSession {
     /**
      * Begins the registration process by selecting the target semester among the available semesters.
      * Not required to call, but useful for getting the current state.
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+     * @returns {Request.FetchResponse} A promise containing the server response.
      */
     public beginRegistration() {
         return this._req('STGAR', 'POST', 'form', 'registration/registration.WBX', {});
@@ -72,8 +72,8 @@ export class RegistrationSession {
      * Submitting this form is technically the only thing you need to wait on before requesting course add/drops.
      * 
      * I have a vague feeling that the server is probably too lazy to confirm you submitted this form, and that you don't need to 
-     * actually submit this before making real requests, but I've never tried doing that.   ¯\\_(ツ)_/¯
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+     * actually submit this before making real requests, but I've never tried doing that.   `¯\_(ツ)_/¯`
+     * @returns {Request.FetchResponse} A promise containing the server response.
     */
     public singleTimeAcknowledgement() {
         return this._req('STUOF', 'POST', 'form', 'registration/confirmEmailAddress.WBX', {
@@ -87,7 +87,7 @@ export class RegistrationSession {
     /**
      * Adds a course to your schedule.
      * @param unique_course_id {number} The unique course identifier.
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+     * @returns {Request.FetchResponse} A promise containing the server response.
      */
     public addCourse(unique_course_id: number) {
         return this._req('STADD', 'GET', 'url', 'registration/registration.WBX', {
@@ -101,7 +101,7 @@ export class RegistrationSession {
     /**
      * Drops a course from your schedule.
      * @param unique_course_id {number} The unique course identifier.
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+     * @returns {Request.FetchResponse} A promise containing the server response.
      */
     public dropCourse(unique_course_id: number) {
         return this._req('STDRP', 'GET', 'url', 'registration/registration.WBX', {
@@ -117,7 +117,7 @@ export class RegistrationSession {
      * aka 'DROP DEPENDENT UPON successfully ADDING'.
      * @param drop_unique_id {number} The unique course identifier of the course to be dropped.
      * @param add_unique_id {number} The unique course identifier of the course to be added.
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+     * @returns {Request.FetchResponse} A promise containing the server response.
      */
     public swapCourses(drop_unique_id: number, add_unique_id: number) {
         return this._req('STSWP', 'GET', 'url', 'registration/registration.WBX', {
@@ -132,7 +132,7 @@ export class RegistrationSession {
      * Joins the waitlist for a course.
      * @param unique_course_id {number} The unique course identifier.
      * @param optional_swap_course_id {number} [optional] The unique course identifier of the course to be swapped if a seat becomes available.
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+     * @returns {Request.FetchResponse} A promise containing the server response.
      */
     public joinWaitlist(unique_course_id: number, optional_swap_course_id?: number) {
         return this._req('STAWL', 'GET', 'url', 'registration/registration.WBX', {
@@ -149,7 +149,7 @@ export class RegistrationSession {
      * Toggles the grading basis for a course (e.g., change between Pass/Fail and Credit/No Credit).
      * aka 'CHANGE to or from PASS/FAIL or CREDIT/NO CREDIT basis'
      * @param unique_course_id {number} The unique course identifier.
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+     * @returns {Request.FetchResponse} A promise containing the server response.
      */
     public toggleCourseGradingBasis(unique_course_id: number) {
         return this._req('STCPF', 'GET', 'url', 'registration/registration.WBX', {
@@ -167,7 +167,7 @@ export class RegistrationSession {
      * aka 'SEARCH for another section of the same course'
      * Gets all other sections that are open (not waitlisted) for a given course_id. Will never return the given course_id as a result, even if the given course is open.
      * @param unique_course_id {number} The unique course identifier.
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+     * @returns {Request.FetchResponse} A promise containing the server response.
      */
     public async searchForAnotherSection(unique_course_id: number) {
         let dom = (await this._req('STGAC', 'GET', 'url', 'registration/searchClasses.WBX', {
@@ -218,7 +218,7 @@ export class RegistrationSession {
      * A unique server-generated nonce is required alongside each request, which can only be used once. These are normally embedded in the HTML form content 
      * returned after every request, but acquiring a nonce this way makes things unnecessarily slow because we have to wait for the server to respond.
      * Fortunately, we can collect many nonces before making a single request from the chooseSemester.WBX page and use them whenever we want.
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>} A promise containing the server response.
+     * @returns {Request.FetchResponse} A promise containing the server response.
      */
     public async collectNonce() {
         let n_before = this.new_nonces.length + this.used_nonces_count;
@@ -232,7 +232,7 @@ export class RegistrationSession {
 
     /**
      * Collects many nonces (as many as max_nonce_count) simultaneously. 
-     * @returns {Promise<{r: Response, body?: string, dom?: CheerioAPI}>}[] A set of promises containing the server responses.
+     * @returns {Request.FetchResponse} A set of promises containing the server responses.
      */
     public async collectMaxNonces() {
         let waiters = [];
@@ -589,6 +589,8 @@ export namespace Request {
     export type Semester = 'Spring' | 'Summer' | 'Fall'
 
     export type Cookie = { name:string, value:string, [k:string]:any }
+
+    export type FetchResponse = ReturnType<RegistrationSession["_fetch"]>
 }
 
 export type RegistrationSessionOptions = {
