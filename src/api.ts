@@ -1,5 +1,6 @@
 import cheerio, { CheerioAPI } from 'cheerio';
-import { chromeGUIAuthentication } from 'ut-auth-utils';
+import { rmSync } from 'fs';
+import { chromeGUIAuthentication, DEFAULT_COOKIE_FILE } from 'ut-auth-utils';
 
 /**
  * Class representing an active browser session connected to UT Direct, a web application used for course registration at the University of Texas at Austin.
@@ -50,10 +51,13 @@ export class RegistrationSession {
     /**
      * Login to UT Direct through a graphical Chromium window to get session cookies.
      * If your cookies are recent, you shouldn't have to do anything.
+     * 
+     * Additionally fills up our nonce stash by calling collectMaxNonces()
      */
     public async login() {
         let new_cookies = await chromeGUIAuthentication(this.ut_direct_url);
         new_cookies.forEach(c=>this.cookies.set(c.name, c.value));
+        await this.collectMaxNonces()
     }
 
     /**
@@ -65,6 +69,7 @@ export class RegistrationSession {
      */
     public async logout() {
         this.cookies = new Map();
+        rmSync(DEFAULT_COOKIE_FILE);
     }
 
     /**
@@ -242,7 +247,7 @@ export class RegistrationSession {
     }
 
     /**
-     * Collects many nonces (as many as max_nonce_count) simultaneously. 
+     * Collects many nonces (as many as max_nonce_count) simultaneously, and stores them for later use. 
      * @returns {Request.FetchResponse} A set of promises containing the server responses.
      */
     public async collectMaxNonces() {
