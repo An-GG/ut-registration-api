@@ -1,7 +1,6 @@
 import cheerio, { CheerioAPI } from 'cheerio';
 import { rmSync } from 'fs';
 import { chromeGUIAuthentication, DEFAULT_COOKIE_FILE } from 'ut-auth-utils';
-
 /**
  * Class representing an active browser session connected to UT Direct, a web application used for course registration at the University of Texas at Austin.
  * @class RegistrationSession
@@ -57,7 +56,6 @@ export class RegistrationSession {
     public async login() {
         let new_cookies = await chromeGUIAuthentication(this.ut_direct_url);
         new_cookies.forEach(c=>this.cookies.set(c.name, c.value));
-        await this.collectMaxNonces()
     }
 
     /**
@@ -262,9 +260,9 @@ export class RegistrationSession {
     /** Extra Utility Methods */
 
     /**
-     * Retrieves registration information from the RIS page.
+     * Retrieves registration schedule.
      * @param prevent_throw_on_parse_error {boolean} [optional] Set to true to prevent throwing errors when parsing registration times.
-     * @returns {Promise<ReturnType<typeof this['getRIS']>>} A promise containing registration information, including schedule and bars status.
+     * @returns {Promise<ReturnType<typeof this['getRIS']>>} A promise containing an array of registration start and stop times as Date objects.
      */
     public async getRIS(prevent_throw_on_parse_error?: boolean) {
         let res = await this._fetch( this.ut_direct_url + 'registrar/ris.WBX', {
@@ -277,55 +275,96 @@ export class RegistrationSession {
         let encountered_errors: Error[] = [];
 
         let schedule_elements = res
-            .dom('a[name=reg]')
-            .nextUntil('.textblock')
-            .last()
-            .next()
-            .children()
-            .not('.textblock');
+            .dom('table')
         let times_raw = schedule_elements
-            .text()
-            .split('\n')
-            .join('')
-            .trim()
-            .split('|')
-            .map(t => t.trim());
+            .text().split('\n');
+
+        let times_alternating: string[] = []
+
+        for (let tr of times_raw) {
+            if (tr.trim().length > 0) { times_alternating.push(tr.trim()) }
+        }
+
+        let times_refined: {date_text:string, time_text:string}[] = [];
+        while (times_alternating.length > 0) {
+            times_refined.push({
+                date_text: times_alternating.shift(),
+                time_text: times_alternating.shift()
+            })
+        }
 
         // Attempt to parse registration times
         let times: {start:Date, stop:Date}[] = [];
-        for (let t of times_raw) {
-            try {
-                let parsed_times = this._parse_ris_daterange(t);
-                times.push(...parsed_times);
-            } catch(e) {
-                if (!prevent_throw_on_parse_error) {
-                    throw e;
-                } else {
-                    encountered_errors.push(e);
-                }
-            }
+        for (let t of times_refined) {
+            times.push(...this._parse_ris_daterange(t))
         }
 
-        // Attempt to parse registration bars
-        let bars_elements = res
-            .dom('div.textblock.barlist')
+        return times;
         
-        let bars_cleared = bars_elements.text().trim() == 'You have no bars at this time.';
+    }
 
-        return {
-            bars: {
-                bars_cleared,
-                _raw_elements: bars_elements,
-                _raw_text: bars_elements.text() 
-            },
-            schedule: {
-                times: times,
-                _raw_elements: schedule_elements,
-                _raw_times: times_raw
-            },
-            encountered_errors,
-            _raw_ris_fetch_result: res,
-        };
+    /**
+     * Parse the RIS date range string.
+     * @param {string} s - RIS date range string.
+     * @returns {Array<{start: Date, stop: Date}>} - An array of start and stop date objects.
+     * @throws {Error} - If the given string cannot be parsed correctly.
+     * @internal
+     */
+    private _parse_ris_daterange(s:{date_text:string, time_text:string}) {
+        let regdays = s.date_text.split('-').map(rg=>rg.trim());
+        let timewindow = s.time_text.split('-').map(tw=>tw.trim());
+        if (timewindow.length != 2) { throw new Error('Something went wrong while parsing RIS schedule. \n\n'+s); }
+        
+        // Manual Cleanup
+        // If regdays has an end date, if the end date doesn't include a space (so probably only a number), append the month from the start date
+        // If regdays only has start, push the start date as end date
+        if (regdays.length == 2) {
+            if (!regdays[1].includes(' ')) {
+                let monthstr = regdays[0].split(' ')[0];
+                regdays[1] = monthstr + ' ' + regdays[1];
+            }
+        } else { regdays.push(regdays[0]); }
+
+        // Add year to reg dates
+        // If spring semester, then check if month is September or later. If it is, year is 1 less than Semester year. 
+        regdays = regdays.map((rg) => {
+            let d = new Date(rg);
+            let y = this.year;
+            if (this.semester == 'Spring') {
+                if (d.getMonth() >= 7) {
+                    y -= 1;
+                }
+            }
+            return rg + ' ' + y;
+        });
+
+        // If the end time is 'Midnight' replace with 11:59 PM
+        if (timewindow[1].toLowerCase() == 'midnight') {
+            timewindow[1] = '11:59 PM';
+        }
+
+        // If a time doesn't include ':' then add it
+        timewindow = timewindow.map(tw => {
+            if (!tw.includes(':')) {
+                return tw.split(' ').join(':00 ');
+            } else {
+                return tw;
+            }
+        });
+
+        let current = new Date(regdays[0]);
+        let end_date = new Date(regdays[1]);
+
+        let times: {start:Date, stop:Date}[] = [];
+        while (current <= end_date) {
+            let c_str = current.toISOString().split('T')[0];
+            times.push({
+                start: new Date(timewindow[0].split('.').join('') + ' ' + c_str),
+                stop:  new Date(timewindow[1].split('.').join('') + ' ' + c_str),
+            });
+            current.setDate(current.getDate() + 1);
+        }
+        return times;
     }
 
     /**
@@ -401,72 +440,6 @@ export class RegistrationSession {
         return Array.from(this.cookies).map(c=>c[0]+'='+c[1]).join('; ');
     }
 
-    /**
-     * Parse the RIS date range string.
-     * @param {string} s - RIS date range string.
-     * @returns {Array<{start: Date, stop: Date}>} - An array of start and stop date objects.
-     * @throws {Error} - If the given string cannot be parsed correctly.
-     * @internal
-     */
-    private _parse_ris_daterange(s:string) {
-            if (s.length == 0) { return []; }
-            let _seperated = s.split(',');
-            if (_seperated.length != 2) { throw new Error('Something went wrong while parsing RIS schedule. \n\n'+s); }
-            let regdays = _seperated[0].split('-').map(rg=>rg.trim());
-            let timewindow = _seperated[1].split('-').map(tw=>tw.trim());
-            if (timewindow.length != 2) { throw new Error('Something went wrong while parsing RIS schedule. \n\n'+s); }
-            
-            // Manual Cleanup
-            // If regdays has an end date, if the end date doesn't include a space (so probably only a number), append the month from the start date
-            // If regdays only has start, push the start date as end date
-            if (regdays.length == 2) {
-                if (!regdays[1].includes(' ')) {
-                    let monthstr = regdays[0].split(' ')[0];
-                    regdays[1] = monthstr + ' ' + regdays[1];
-                }
-            } else { regdays.push(regdays[0]); }
-
-            // Add year to reg dates
-            // If spring semester, then check if month is September or later. If it is, year is 1 less than Semester year. 
-            regdays = regdays.map((rg) => {
-                let d = new Date(rg);
-                let y = this.year;
-                if (this.semester == 'Spring') {
-                    if (d.getMonth() >= 7) {
-                        y -= 1;
-                    }
-                }
-                return rg + ' ' + y;
-            });
-
-            // If the end time is 'Midnight' replace with 11:59 PM
-            if (timewindow[1] == 'Midnight') {
-                timewindow[1] = '11:59 PM';
-            }
-
-            // If a time doesn't include ':' then add it
-            timewindow = timewindow.map(tw => {
-                if (!tw.includes(':')) {
-                    return tw.split(' ').join(':00 ');
-                } else {
-                    return tw;
-                }
-            });
-
-            let current = new Date(regdays[0]);
-            let end_date = new Date(regdays[1]);
-
-            let times: {start:Date, stop:Date}[] = [];
-            while (current <= end_date) {
-                let c_str = current.toISOString().split('T')[0];
-                times.push({
-                    start: new Date(timewindow[0] + ' ' + c_str),
-                    stop:  new Date(timewindow[1] + ' ' + c_str),
-                });
-                current.setDate(current.getDate() + 1);
-            }
-            return times;
-    }
 
     /**
      * Fetch a resource using the provided URL and options.
