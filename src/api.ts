@@ -380,7 +380,7 @@ export class RegistrationSession {
             let out:{ [k in string]:string } = {}
             let i = 0;
             for (let td of tds) {
-                out[headers[i]]=td.text()
+                out[headers[i]]=td.text().trim()
                 i++;
             }
             return out;
