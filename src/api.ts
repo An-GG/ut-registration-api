@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 import cheerio, { CheerioAPI } from 'cheerio';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 /**
  * Class representing an active browser session connected to UT Direct, a web application used for course registration at the University of Texas at Austin.
@@ -16,6 +17,9 @@ export class RegistrationSession {
     private new_nonces: string[] = [];
     private used_nonces_count: number = 0;
 
+    private cookie_file = "/tmp/utreg-cookiejar.json";
+    private disable_cookie_file = false;
+
     private sem_codes: {[k in Request.Semester]:number}  = { 'Spring': 2, 'Summer': 6, 'Fall': 9 }
     private year: number;
     private semester: Request.Semester;
@@ -26,21 +30,29 @@ export class RegistrationSession {
      * @constructor
      * @param {number} year - Year of the semester.
      * @param {Request.Semester} semester - Semester (Spring, Summer, or Fall).
+     * @param {Request.Cookie[]} init_cookies - Setup these cookies in the session.
      * @param {RegistrationSessionOptions} [opts] - Optional configuration options.
+     *  - `cookie_storage_dir` - specify a file to store and load cookies from, so that cookies can persist between program runs. Default is `/tmp/utreg-cookiejar`
+     *  - configure max/min stored nonce count
      */
-    constructor(year: number, semester: Request.Semester, init_cookies?: Request.Cookie[], opts?:RegistrationSessionOptions) {
+    constructor(year: number, semester: Request.Semester, init_cookies?: Request.Cookie[], opts?:Partial<RegistrationSessionOptions>) {
         this.year = year;
         this.semester = semester;
         this.ccyys = year + '' + this.sem_codes[semester];
 
+        
+        opts = opts ? opts : {};
+        for (let k of Object.keys(opts as RegistrationSessionOptions)) {
+            (this as any)[k] = (opts as any)[k]
+        }
+
+
         if (init_cookies) {
             init_cookies.forEach(c=>this.cookies.set(c.name, c.value));
         }
-        
-        opts = opts ? opts : {};
-        for (let k of Object.keys(opts)) {
-            let kk = k as keyof typeof opts;
-            this[kk] = opts[kk];
+        if (existsSync(this.cookie_file) && !this.disable_cookie_file) {
+            let old_cookies = JSON.parse(readFileSync(this.cookie_file).toString()) as Request.Cookie[]
+            old_cookies.forEach(c=>this.cookies.set(c.name, c.value));
         }
     }
 
@@ -358,6 +370,7 @@ export class RegistrationSession {
             let single_cs_vars = single_cs.split('; ').map((ck)=>ck.split('='));
             // first var is k/v
             this.cookies.set(single_cs_vars[0][0], single_cs_vars[0][1]);
+            if (!this.disable_cookie_file) { writeFileSync(this.cookie_file, JSON.stringify(this.cookies)) }
         }
     }
 
@@ -571,8 +584,10 @@ export namespace Request {
     export type Cookie = { name:string, value:string, [k:string]:any }
 }
 
-export type RegistrationSessionOptions = Partial<{
+export type RegistrationSessionOptions = {
     max_nonce_count:number,
-    min_nonce_count:number
-}>
+    min_nonce_count:number,
+    cookie_file:string,
+    disable_cookie_false:boolean
+}
 
