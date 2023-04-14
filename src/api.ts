@@ -85,8 +85,6 @@ export class RegistrationSession {
      *
      * Submitting this form is technically the only thing you need to wait on before requesting course add/drops.
      * 
-     * I have a vague feeling that the server is probably too lazy to confirm you submitted this form, and that you don't need to 
-     * actually submit this before making real requests, but I've never tried doing that.   `¯\_(ツ)_/¯`
      * @returns {Request.FetchResponse} A promise containing the server response.
     */
     public singleTimeAcknowledgement() {
@@ -485,6 +483,16 @@ export class RegistrationSession {
      * @internal
      */
     private async _req(code: Request.Code, method: 'POST' | 'GET', param_mode: 'form' | 'url', ep: Request.Endpoint, params: Request.Params) {
+
+        if (this.new_nonces.length == 0) {
+            try { await this.collectMaxNonces(); } catch(e) {
+                console.log("ERROR: Had trouble collecting nonces. \n"+
+                            "\tAre you sure the registration system is open? \n" +
+                            "\tNonces can only be collected when the registration page is accessible.\n");
+                throw e;
+            }
+        }
+
         let managed_params: Request.ManagedParams = {
             s_ccyys: this.ccyys,
             s_nonce: this._take_nonce(),
