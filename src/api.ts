@@ -249,7 +249,7 @@ export class RegistrationSession {
     public async collectMaxNonces() {
         let waiters = [];
         for (let i = 0; i < this.max_nonce_count - this.new_nonces.length; i++) {
-            waiters.push(this.collectNonce());
+            waiters.push(await this.collectNonce());
         }
         return await Promise.all(waiters);
     }
