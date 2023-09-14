@@ -4,11 +4,11 @@
     "typedoc": "^0.23.26",
     "typedoc-plugin-markdown": "^3.14.0",
     "typescript": "^4.9.5",
-    "ut-auth-utils": "^2.0.2"
+    "ut-auth-utils": "^2.1.0"
   },
   "name": "ut-registration-api",
   "description": "- Uses get and post requests with query params, works using forms basically no scripts   - `searchCheck()` runs on main form submit, changes endpoint depending on command   - `validateForm()` only on acknowledgement page, checks to see if box checked -",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "main": "dist/api.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
